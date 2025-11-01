@@ -1,0 +1,47 @@
+{
+  "projectName": "AVATAR",
+  "projectDescription": "在單機有限資源（RTX 4090 24GB）下，實現低延遲（≤3秒）的全地端 AI 語音對話助手",
+  "projectType": "AI/ML",
+  "language": "Python",
+  "complexity": "HIGH",
+  "taskmasterMode": "LOW",
+  "githubEnabled": true,
+  "pauseCheckpoints": true,
+  "hubStrategy": "Hybrid",
+  "createdAt": "2025-11-01T19:36:00Z",
+  "lastUpdated": "2025-11-01T19:36:00Z",
+  "kpis": {
+    "e2eLatency": {
+      "target": "P95 ≤ 3.5s",
+      "current": "Not Measured"
+    },
+    "stability": {
+      "target": "2 hours 5 concurrent sessions without OOM",
+      "current": "Not Measured"
+    },
+    "voiceQuality": {
+      "target": "≥ 7/10 subjective score",
+      "current": "Not Measured"
+    }
+  },
+  "resources": {
+    "vram": {
+      "total": "24GB",
+      "vllm": "9-12GB",
+      "tts": "1-4GB",
+      "maxConcurrent": 5
+    },
+    "timeline": {
+      "totalWeeks": 4,
+      "totalHours": 160,
+      "phases": 5
+    }
+  },
+  "vibeCodingTemplates": [
+    "08_project_structure_guide.md (95%)",
+    "05_architecture_and_design_document.md (90%)",
+    "07_module_specification_and_tests.md (85%)",
+    "04_api_design_specification_template.md (85%)",
+    "13_security_and_readiness_checklists.md (80%)"
+  ]
+}

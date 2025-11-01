@@ -1,0 +1,268 @@
+{
+  "version": "1.0",
+  "totalTasks": 32,
+  "completedTasks": 1,
+  "phases": [
+    {
+      "id": "phase-1",
+      "name": "Phase 1: 專案設置與環境準備",
+      "week": "Week 0-1",
+      "estimatedHours": 8,
+      "checkpoint": true,
+      "tasks": [
+        {
+          "id": "task-1",
+          "title": "建立完整專案目錄結構",
+          "status": "completed",
+          "assignee": "Claude Code",
+          "estimatedHours": 0.5,
+          "completedAt": "2025-11-01T19:36:00Z"
+        },
+        {
+          "id": "task-2",
+          "title": "配置 Poetry 虛擬環境與依賴安裝",
+          "status": "pending",
+          "assignee": "Human + Claude",
+          "estimatedHours": 1,
+          "details": "poetry install + PyTorch CUDA + vLLM"
+        },
+        {
+          "id": "task-3",
+          "title": "下載並驗證 AI 模型",
+          "status": "pending",
+          "assignee": "Claude Code",
+          "estimatedHours": 2,
+          "details": "Whisper + Qwen-7B + F5-TTS + CosyVoice"
+        },
+        {
+          "id": "task-4",
+          "title": "建立 SQLite 資料庫 schema",
+          "status": "pending",
+          "assignee": "Claude Code",
+          "estimatedHours": 1,
+          "details": "conversations + voice_profiles 表"
+        },
+        {
+          "id": "task-5",
+          "title": "初始化 Git 與 GitHub 遠端倉庫",
+          "status": "in_progress",
+          "assignee": "Claude Code",
+          "estimatedHours": 0.5
+        },
+        {
+          "id": "task-6",
+          "title": "生成客製化 CLAUDE.md",
+          "status": "completed",
+          "assignee": "Claude Code",
+          "estimatedHours": 1,
+          "checkpoint": true,
+          "checkpointType": "driver_review",
+          "completedAt": "2025-11-01T19:36:00Z"
+        }
+      ]
+    },
+    {
+      "id": "phase-2",
+      "name": "Phase 2: 核心流程開發",
+      "week": "Week 1",
+      "estimatedHours": 40,
+      "checkpoint": true,
+      "tasks": [
+        {
+          "id": "task-7",
+          "title": "實作 FastAPI 主應用程式",
+          "status": "pending",
+          "estimatedHours": 4
+        },
+        {
+          "id": "task-8",
+          "title": "實作 WebSocket 處理邏輯",
+          "status": "pending",
+          "estimatedHours": 6
+        },
+        {
+          "id": "task-9",
+          "title": "實作 Whisper STT 服務",
+          "status": "pending",
+          "estimatedHours": 5
+        },
+        {
+          "id": "task-10",
+          "title": "實作 vLLM 推理服務",
+          "status": "pending",
+          "estimatedHours": 6
+        },
+        {
+          "id": "task-11",
+          "title": "實作 F5-TTS Fast 模式",
+          "status": "pending",
+          "estimatedHours": 8
+        },
+        {
+          "id": "task-12",
+          "title": "實作資料庫操作層",
+          "status": "pending",
+          "estimatedHours": 4
+        },
+        {
+          "id": "task-13",
+          "title": "WebSocket 端到端整合測試",
+          "status": "pending",
+          "estimatedHours": 7,
+          "checkpoint": true,
+          "checkpointType": "driver_review"
+        }
+      ]
+    },
+    {
+      "id": "phase-3",
+      "name": "Phase 3: 進階功能開發",
+      "week": "Week 2",
+      "estimatedHours": 30,
+      "checkpoint": true,
+      "tasks": [
+        {
+          "id": "task-14",
+          "title": "實作聲紋管理 REST API",
+          "status": "pending",
+          "estimatedHours": 5
+        },
+        {
+          "id": "task-15",
+          "title": "實作 CosyVoice 高質 TTS",
+          "status": "pending",
+          "estimatedHours": 8
+        },
+        {
+          "id": "task-16",
+          "title": "實作對話歷史 API",
+          "status": "pending",
+          "estimatedHours": 3
+        },
+        {
+          "id": "task-17",
+          "title": "前端開發 - 聊天介面",
+          "status": "pending",
+          "estimatedHours": 6
+        },
+        {
+          "id": "task-18",
+          "title": "前端開發 - 聲紋管理介面",
+          "status": "pending",
+          "estimatedHours": 4
+        },
+        {
+          "id": "task-19",
+          "title": "前端開發 - 對話歷史介面",
+          "status": "pending",
+          "estimatedHours": 4,
+          "checkpoint": true,
+          "checkpointType": "driver_review"
+        }
+      ]
+    },
+    {
+      "id": "phase-4",
+      "name": "Phase 4: 優化與測試",
+      "week": "Week 3",
+      "estimatedHours": 32,
+      "checkpoint": true,
+      "tasks": [
+        {
+          "id": "task-20",
+          "title": "VRAM 監控與限流機制",
+          "status": "pending",
+          "estimatedHours": 5
+        },
+        {
+          "id": "task-21",
+          "title": "並發會話控制與排隊",
+          "status": "pending",
+          "estimatedHours": 5
+        },
+        {
+          "id": "task-22",
+          "title": "WebSocket 重連與恢復機制",
+          "status": "pending",
+          "estimatedHours": 4
+        },
+        {
+          "id": "task-23",
+          "title": "錯誤處理與結構化日誌",
+          "status": "pending",
+          "estimatedHours": 4
+        },
+        {
+          "id": "task-24",
+          "title": "效能測試 (E2E 延遲 P95 ≤ 3.5s)",
+          "status": "pending",
+          "estimatedHours": 7
+        },
+        {
+          "id": "task-25",
+          "title": "穩定性測試 (2 小時 5 並發無 OOM)",
+          "status": "pending",
+          "estimatedHours": 7,
+          "checkpoint": true,
+          "checkpointType": "driver_review"
+        }
+      ]
+    },
+    {
+      "id": "phase-5",
+      "name": "Phase 5: 上線準備",
+      "week": "Week 4",
+      "estimatedHours": 24,
+      "checkpoint": true,
+      "tasks": [
+        {
+          "id": "task-26",
+          "title": "安全性檢查與漏洞掃描",
+          "status": "pending",
+          "estimatedHours": 4,
+          "subagent": "security-infrastructure-auditor"
+        },
+        {
+          "id": "task-27",
+          "title": "API 文檔自動生成",
+          "status": "pending",
+          "estimatedHours": 2,
+          "subagent": "documentation-specialist"
+        },
+        {
+          "id": "task-28",
+          "title": "部署腳本與自動化",
+          "status": "pending",
+          "estimatedHours": 4
+        },
+        {
+          "id": "task-29",
+          "title": "健康檢查端點 (/health)",
+          "status": "pending",
+          "estimatedHours": 2
+        },
+        {
+          "id": "task-30",
+          "title": "音檔備份與清理腳本",
+          "status": "pending",
+          "estimatedHours": 3
+        },
+        {
+          "id": "task-31",
+          "title": "MVP 上線檢查清單驗證 (32 項)",
+          "status": "pending",
+          "estimatedHours": 6,
+          "subagent": "deployment-operations-engineer"
+        },
+        {
+          "id": "task-32",
+          "title": "最終駕駛員審查與上線批准",
+          "status": "pending",
+          "estimatedHours": 3,
+          "checkpoint": true,
+          "checkpointType": "driver_final_approval"
+        }
+      ]
+    }
+  ]
+}

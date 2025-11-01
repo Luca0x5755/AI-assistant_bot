@@ -1,0 +1,118 @@
+[tool.poetry]
+name = "avatar-mvp"
+version = "0.1.0"
+description = "AVATAR - AI Voice Assistant with Local Deployment (RTX 4090)"
+authors = ["AVATAR Team <noreply@example.com>"]
+readme = "README.md"
+package-mode = false
+
+# 環境要求說明:
+# - Python: 3.11-3.12
+# - CUDA: 12.1+ (系統安裝, 當前: 12.5/12.7)
+# - GPU: RTX 3090 24GB (compute capability 8.6)
+# - VRAM: 24GB
+# - RAM: 32GB+
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.13"
+
+# Web Framework & API
+fastapi = ">=0.104.0"
+uvicorn = {version = ">=0.24.0", extras = ["standard"]}
+python-multipart = ">=0.0.6"  # 檔案上傳
+websockets = ">=12.0"
+aiohttp = ">=3.9.0"
+
+# Database
+aiosqlite = ">=0.19.0"  # Async SQLite
+
+# Data Validation & Configuration
+pydantic = ">=2.0.0"
+pydantic-settings = ">=2.0.0"
+python-dotenv = ">=1.0.0"
+
+# Data Processing
+numpy = ">=1.24.0"
+
+# Async I/O
+aiofiles = ">=23.0.0"
+
+# Logging & Monitoring
+structlog = ">=23.0.0"  # 結構化日誌
+
+# AI Models (部分需手動安裝)
+# vLLM - 手動安裝: pip install vllm>=0.6.0
+# faster-whisper - 手動安裝: pip install faster-whisper
+# F5-TTS - 參考官方 repo: https://github.com/SWivid/F5-TTS
+# CosyVoice3 - 參考官方 repo: https://github.com/FunAudioLLM/CosyVoice
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=7.4.0"
+pytest-asyncio = ">=0.21.0"
+pytest-cov = ">=4.1.0"
+black = ">=23.0.0"
+ruff = ">=0.1.0"
+mypy = ">=1.7.0"
+
+# PyTorch with CUDA support - 鎖定版本防止被覆蓋
+# 警告: 不要使用 poetry update torch，會安裝 CPU 版本！
+# 手動安裝命令: pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+# 注意: Poetry 無法解析 +cu121 版本號，必須手動管理
+
+[[tool.poetry.source]]
+name = "pytorch-cu121"
+url = "https://download.pytorch.org/whl/cu121"
+priority = "explicit"
+
+# flash-attn (可選) - 從源碼編譯安裝
+# 安裝指令: MAX_JOBS=4 pip install flash-attn --no-build-isolation --no-cache-dir
+# 注意: 需要 CUDA 12.1+ 和 compute capability >= 7.5
+
+# =============================================================================
+# 環境設置指南 (Environment Setup Guide)
+# =============================================================================
+#
+# 步驟 1: 安裝 Poetry
+#   Linux/macOS/WSL:
+#     curl -sSL https://install.python-poetry.org | python3 -
+#     echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+#     source ~/.bashrc
+#   Windows (PowerShell):
+#     (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
+#
+# 步驟 2: 配置 Poetry
+#   poetry config virtualenvs.in-project true
+#
+# 步驟 3: 安裝基礎依賴
+#   poetry install --no-root
+#
+# 步驟 4: 激活虛擬環境
+#   方法 A: poetry env activate  # Poetry 2.0+
+#   方法 B: source .venv/bin/activate  # Linux/macOS/WSL
+#   方法 C: .venv\Scripts\activate  # Windows
+#
+# 步驟 5: 安裝 PyTorch (CUDA 12.1)
+#   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+#
+# 步驟 6: 安裝 AI 模型套件
+#   pip install vllm>=0.6.0
+#   pip install faster-whisper
+#   # F5-TTS 與 CosyVoice3 需參考官方 repo 安裝
+#
+# 步驟 7: 安裝 Flash-Attention (可選，提升性能)
+#   MAX_JOBS=4 pip install flash-attn --no-build-isolation --no-cache-dir
+#
+# 步驟 8: 驗證安裝
+#   python scripts/validate_setup.py
+#
+# 當前開發環境:
+# - OS: Windows 11 / WSL2 Ubuntu 22.04
+# - CUDA: 12.5 (nvcc) / 12.7 (runtime)
+# - GPU: NVIDIA RTX 3090 (24GB, compute capability 8.6)
+# - Python: 3.11
+# - PyTorch: 2.x+cu121 (向上相容)
+# =============================================================================
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
