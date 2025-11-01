@@ -1,5 +1,9 @@
 # Claude Code Universal Template .gitignore
 
+## 敏感資訊保護
+# MCP Configuration (contains API keys)
+.mcp.json
+
 ## 專案特定檔案 (模板使用時需要自訂)
 # 這些檔案在模板中保留，但在實際專案中可能需要忽略
 
