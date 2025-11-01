@@ -1,9 +1,9 @@
 # AVATAR - 開發進度報告
 
 > 更新日期: 2025-11-01
-> 開發狀態: In Development (Phase 1 → Phase 2 Transition)
-> 完成度: 20%
-> Sprint: 1 (Week 0-1: 環境準備 → 核心開發)
+> 開發狀態: In Development (Phase 2 - 核心開發中)
+> 完成度: 35%
+> Sprint: 1 (Week 1: 核心流程開發)
 
 ---
 
@@ -16,11 +16,11 @@
 
 ### 實際進度
 ```
-[====................] 20% (Phase 1 基礎完成)
+[=======.............] 35% (Phase 2 核心架構完成)
 
 Phase 0: 規劃        ████████████████████ 100% ✅
-Phase 1: 環境準備    ████████------------ 40% ✅
-Phase 2: 核心開發    -------------------- 0%
+Phase 1: 環境準備    ████████████████████ 100% ✅
+Phase 2: 核心開發    ██████-------------- 30%
 Phase 3: 測試上線    -------------------- 0%
 ```
 
@@ -85,6 +85,16 @@ gantt
 - ✅ WAL 模式啟用（提升並發性能）
 - ✅ 資料庫初始化腳本 (scripts/init_database.py)
 
+### 已完成（Week 1 - Phase 2, Tasks 7-8-12）
+- ✅ FastAPI 主應用程式架構 (src/avatar/main.py)
+- ✅ 配置管理系統 (src/avatar/core/config.py)
+- ✅ WebSocket 端點與會話管理 (src/avatar/api/websocket.py)
+- ✅ WebSocket 訊息協議定義 (src/avatar/models/messages.py)
+- ✅ 資料庫操作層 (src/avatar/services/database.py)
+- ✅ 對話持久化功能（conversations table 完整 CRUD）
+- ✅ 聲紋管理功能（voice_profiles table 完整 CRUD）
+- ✅ 伺服器啟動腳本 (run_server.py, run_dev.py)
+
 ### 開發中（Week 1 - Phase 2）
 - ⏸️ AI 模型套件安裝（延後至實際需要時）
   - [ ] vLLM (>=0.6.0) - Week 1 核心開發時安裝
@@ -97,11 +107,11 @@ gantt
 ### 待辦（Week 1-4）
 
 #### Week 1: 核心流程打通
-- [ ] **後端基礎**
-  - [ ] FastAPI 專案初始化
-  - [ ] WebSocket 連接處理
-  - [ ] SQLite 資料庫初始化
-  - [ ] 音檔存儲目錄建立
+- [x] **後端基礎** ✅
+  - [x] FastAPI 專案初始化 ✅
+  - [x] WebSocket 連接處理 ✅
+  - [x] SQLite 資料庫初始化 ✅
+  - [x] 音檔存儲目錄建立 ✅
 
 - [ ] **AI 模型整合**
   - [ ] Whisper STT 服務封裝
@@ -307,6 +317,7 @@ async def stress_test():
 | 2025-11-01 | 1.0.0 | 初版完成（規劃階段） | Lead Engineer |
 | 2025-11-01 | 1.1.0 | Phase 1 Task 2 完成：Poetry 環境配置與 PyTorch 安裝 | Claude Code + TaskMaster |
 | 2025-11-01 | 1.2.0 | Phase 1 Tasks 3-4 完成：SQLite schema 建立，AI 模型延後 | Claude Code + TaskMaster |
+| 2025-11-01 | 1.3.0 | Phase 2 Tasks 7-8-12 完成：FastAPI + WebSocket + Database 層 | Claude Code + TaskMaster |
 
 ---
 

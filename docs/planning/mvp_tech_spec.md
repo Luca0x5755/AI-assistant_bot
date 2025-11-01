@@ -280,13 +280,73 @@ source .venv/bin/activate
 
 #### 步驟 5: 安裝 GPU 相關依賴（CUDA 版本）
 
+**5.1 安裝 PyTorch (CUDA 12.1)**
+
 ```bash
-# PyTorch with CUDA 12.1+（依據你的 CUDA 版本調整）
+# 方法 A: 在激活的 Poetry 環境中安裝（推薦）
+# 確保已激活環境（見步驟 4）
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 
-# Flash-Attention（可選，需編譯）
-MAX_JOBS=4 pip install flash-attn --no-build-isolation --no-cache-dir
+# 方法 B: 使用 poetry run
+poetry run pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 ```
+
+**5.2 安裝 Flash-Attention（可選，提升性能）**
+
+Flash-Attention 需要從源碼編譯，且需要在 Poetry 的虛擬環境中安裝。以下是跨平台的方法：
+
+**方法 A: 使用 poetry shell（推薦，最簡單）**
+
+```bash
+# Linux / macOS / WSL
+poetry shell
+# 此時你已進入 Poetry 的虛擬環境，執行：
+MAX_JOBS=4 pip install flash-attn --no-build-isolation --no-cache-dir
+exit  # 退出 shell
+
+# Windows PowerShell（PowerShell 不支持 MAX_JOBS= 語法）
+poetry shell
+$env:MAX_JOBS=4; pip install flash-attn --no-build-isolation --no-cache-dir
+exit
+
+# Windows CMD
+poetry shell
+set MAX_JOBS=4 && pip install flash-attn --no-build-isolation --no-cache-dir
+exit
+```
+
+**方法 B: 手動激活虛擬環境**
+
+```bash
+# Linux / macOS / WSL
+source .venv/bin/activate
+MAX_JOBS=4 pip install flash-attn --no-build-isolation --no-cache-dir
+deactivate
+
+# Windows PowerShell
+.venv\Scripts\Activate.ps1
+$env:MAX_JOBS=4; pip install flash-attn --no-build-isolation --no-cache-dir
+deactivate
+
+# Windows CMD
+.venv\Scripts\activate.bat
+set MAX_JOBS=4 && pip install flash-attn --no-build-isolation --no-cache-dir
+deactivate
+```
+
+**方法 C: 使用 poetry run（僅 Linux/macOS/WSL）**
+
+```bash
+# 注意: Windows PowerShell 不支援此語法
+MAX_JOBS=4 poetry run pip install flash-attn --no-build-isolation --no-cache-dir
+```
+
+**說明**:
+- `MAX_JOBS=4`: 限制編譯並行數，避免記憶體不足（可根據你的 RAM 調整，如 2/4/8）
+- `--no-build-isolation`: 使用當前環境的編譯工具，而非建立隔離環境
+- `--no-cache-dir`: 不緩存編譯產物，節省空間
+- **編譯時間**: 首次安裝約需 10-30 分鐘，取決於 CPU 和記憶體
+- **驗證安裝**: `poetry run python -c "import flash_attn; print('Flash-Attention installed successfully')"`
 
 #### 步驟 6: 下載 AI 模型
 
@@ -711,23 +771,73 @@ sudo ufw allow 8000/tcp
 ### C6. Flash-Attention 編譯失敗
 
 **問題**: `pip install flash-attn` 編譯超時或錯誤
-**解決方案**:
+
+**診斷步驟**:
 ```bash
-# 方法 1: 限制並行編譯（減少記憶體使用）
+# 1. 確認在 Poetry 虛擬環境中
+poetry env info
+
+# 2. 檢查 CUDA 工具鏈
+nvcc --version
+python -c "import torch; print(f'CUDA Available: {torch.cuda.is_available()}')"
+```
+
+**解決方案**:
+
+**方法 1: 在 Poetry 環境中限制並行編譯（減少記憶體使用）**
+
+```bash
+# Linux / macOS / WSL
+poetry shell
 MAX_JOBS=2 pip install flash-attn --no-build-isolation --no-cache-dir
+exit
 
-# 方法 2: 使用預編譯 wheel（如果可用）
+# Windows PowerShell
+poetry shell
+$env:MAX_JOBS=2; pip install flash-attn --no-build-isolation --no-cache-dir
+exit
+
+# Windows CMD
+poetry shell
+set MAX_JOBS=2 && pip install flash-attn --no-build-isolation --no-cache-dir
+exit
+```
+
+**方法 2: 使用預編譯 wheel（如果可用）**
+
+```bash
+poetry shell
 pip install flash-attn --find-links https://github.com/Dao-AILab/flash-attention/releases
+exit
+```
 
-# 方法 3: 跳過 Flash-Attention（性能略降）
-# 修改代碼，使用標準 attention 實作
+**方法 3: 降低並行數（記憶體不足時）**
+
+```bash
+# 如果 32GB RAM，嘗試 MAX_JOBS=2 或 1
+poetry shell
+MAX_JOBS=1 pip install flash-attn --no-build-isolation --no-cache-dir
+exit
+```
+
+**方法 4: 跳過 Flash-Attention（性能略降）**
+
+```bash
+# Flash-Attention 是可選依賴，可以跳過
+# vLLM 仍可運行，只是性能略降
 ```
 
 **編譯要求**:
-- CUDA 11.6+ 或 CUDA 12.x
-- GPU Compute Capability ≥ 7.5（Turing 架構以上）
-- 編譯期間記憶體 >16GB
-- 磁碟空間 >10GB
+- CUDA 11.6+ 或 CUDA 12.x（需與 PyTorch CUDA 版本匹配）
+- GPU Compute Capability ≥ 7.5（Turing 架構以上，RTX 3090 為 8.6 ✅）
+- 編譯期間記憶體 >16GB（建議 32GB+）
+- 磁碟空間 >10GB（用於編譯緩存）
+- **必須在 Poetry 虛擬環境中編譯**（不要使用系統 Python）
+
+**常見錯誤與解決**:
+- `CUDA not found`: 確認 CUDA Toolkit 已安裝且路徑正確
+- `Out of memory during compilation`: 降低 `MAX_JOBS` 至 1-2
+- `gcc/g++ version mismatch`: 確保編譯器版本與 CUDA 兼容（建議 GCC 9-12）
 
 ---
 

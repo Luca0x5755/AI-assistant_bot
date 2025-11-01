@@ -45,6 +45,8 @@ structlog = ">=23.0.0"  # 結構化日誌
 # faster-whisper - 手動安裝: pip install faster-whisper
 # F5-TTS - 參考官方 repo: https://github.com/SWivid/F5-TTS
 # CosyVoice3 - 參考官方 repo: https://github.com/FunAudioLLM/CosyVoice
+vllm = "^0.11.0"
+faster-whisper = "^1.2.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=7.4.0"
