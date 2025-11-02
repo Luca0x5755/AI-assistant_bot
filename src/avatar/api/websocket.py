@@ -12,6 +12,7 @@ Handles the full conversation pipeline:
 import asyncio
 import base64
 import json
+import time
 import uuid
 from pathlib import Path
 from typing import Optional
@@ -32,6 +33,13 @@ from avatar.services.database import db
 logger = structlog.get_logger()
 
 
+# Buffer limits to prevent memory leaks and DoS attacks
+# Following Linus principle: "Fail fast, no special cases"
+MAX_BUFFER_SIZE_BYTES = 10 * 1024 * 1024  # 10MB (~2 minutes of audio)
+MAX_CHUNK_COUNT = 1000  # Max number of chunks
+BUFFER_TIMEOUT_SECONDS = 60  # 60 seconds max buffering time
+
+
 class ConversationSession:
     """
     Manages a single conversation session
@@ -46,6 +54,10 @@ class ConversationSession:
         self.turn_number = 0
         self.voice_profile_id: Optional[int] = None
         self.is_processing = False
+
+        # Buffer limit tracking
+        self.buffer_size_bytes = 0
+        self.buffer_first_chunk_time: Optional[float] = None
 
         logger.info("session.created", session_id=session_id)
 
@@ -69,17 +81,73 @@ class ConversationSession:
         logger.error("session.error", session_id=self.session_id, error=error, code=code)
 
     def add_audio_chunk(self, data_b64: str):
-        """Add audio chunk to buffer"""
+        """
+        Add audio chunk to buffer with limits checking
+
+        Prevents memory leaks and DoS attacks by enforcing:
+        - Maximum buffer size (10MB)
+        - Maximum chunk count (1000)
+        - Buffering timeout (60s)
+
+        Raises:
+            RuntimeError: Buffer limit exceeded
+        """
         try:
             audio_bytes = base64.b64decode(data_b64)
+            chunk_size = len(audio_bytes)
+
+            # Track first chunk time for timeout detection
+            if self.buffer_first_chunk_time is None:
+                self.buffer_first_chunk_time = time.time()
+
+            # Check 1: Chunk count limit
+            if len(self.audio_buffer) >= MAX_CHUNK_COUNT:
+                logger.error("session.buffer.chunk_limit_exceeded",
+                            session_id=self.session_id,
+                            chunk_count=len(self.audio_buffer),
+                            limit=MAX_CHUNK_COUNT)
+                raise RuntimeError(
+                    f"Buffer chunk limit exceeded: {len(self.audio_buffer)} >= {MAX_CHUNK_COUNT}"
+                )
+
+            # Check 2: Size limit
+            if self.buffer_size_bytes + chunk_size > MAX_BUFFER_SIZE_BYTES:
+                logger.error("session.buffer.size_limit_exceeded",
+                            session_id=self.session_id,
+                            buffer_size_mb=round(self.buffer_size_bytes / 1024 / 1024, 2),
+                            chunk_size_kb=round(chunk_size / 1024, 2),
+                            limit_mb=round(MAX_BUFFER_SIZE_BYTES / 1024 / 1024, 2))
+                raise RuntimeError(
+                    f"Buffer size limit exceeded: "
+                    f"{self.buffer_size_bytes + chunk_size} > {MAX_BUFFER_SIZE_BYTES}"
+                )
+
+            # Check 3: Timeout
+            elapsed = time.time() - self.buffer_first_chunk_time
+            if elapsed > BUFFER_TIMEOUT_SECONDS:
+                logger.error("session.buffer.timeout",
+                            session_id=self.session_id,
+                            elapsed_sec=round(elapsed, 2),
+                            timeout_sec=BUFFER_TIMEOUT_SECONDS)
+                raise RuntimeError(
+                    f"Buffer timeout: {elapsed:.2f}s > {BUFFER_TIMEOUT_SECONDS}s"
+                )
+
+            # All checks passed, add to buffer
             self.audio_buffer.append(audio_bytes)
+            self.buffer_size_bytes += chunk_size
+
             logger.debug("session.audio_chunk",
                         session_id=self.session_id,
-                        chunk_size=len(audio_bytes),
-                        total_chunks=len(self.audio_buffer))
-        except Exception as e:
-            logger.error("session.audio_decode_failed", session_id=self.session_id, error=str(e))
-            raise
+                        chunk_size=chunk_size,
+                        total_chunks=len(self.audio_buffer),
+                        total_size_kb=round(self.buffer_size_bytes / 1024, 2))
+
+        except base64.binascii.Error as e:
+            logger.error("session.audio_decode_failed",
+                        session_id=self.session_id,
+                        error=str(e))
+            raise RuntimeError(f"Invalid base64 audio data: {e}") from e
 
     async def process_audio(self):
         """
@@ -164,21 +232,67 @@ class ConversationSession:
         finally:
             self.is_processing = False
             self.audio_buffer.clear()
+            # Reset buffer tracking variables
+            self.buffer_size_bytes = 0
+            self.buffer_first_chunk_time = None
 
     async def _save_audio(self) -> Path:
-        """Save buffered audio to file"""
+        """
+        Save buffered audio and convert to WAV 16kHz mono
+
+        Browsers typically send WebM/Opus format, but Whisper requires
+        WAV PCM 16kHz mono. This method handles the conversion automatically.
+
+        Returns:
+            Path to converted WAV file
+
+        Raises:
+            RuntimeError: Audio conversion failed
+        """
+        from avatar.core.audio_utils import convert_to_wav_async
+
         audio_data = b"".join(self.audio_buffer)
-        filename = f"{self.session_id}_turn{self.turn_number}_{uuid.uuid4().hex[:8]}.wav"
-        audio_path = config.AUDIO_RAW / filename
 
-        # Write raw PCM data (will be converted to WAV format in production)
-        audio_path.write_bytes(audio_data)
+        # Step 1: Save raw audio from browser (WebM/Opus/etc.)
+        raw_filename = f"{self.session_id}_turn{self.turn_number}_{uuid.uuid4().hex[:8]}.webm"
+        raw_path = config.AUDIO_RAW / raw_filename
+        raw_path.write_bytes(audio_data)
 
-        logger.info("session.audio_saved",
+        logger.info("session.audio.raw_saved",
                    session_id=self.session_id,
-                   path=str(audio_path),
+                   path=str(raw_path),
                    size_bytes=len(audio_data))
-        return audio_path
+
+        # Step 2: Convert to WAV 16kHz mono for Whisper
+        wav_filename = f"{self.session_id}_turn{self.turn_number}_{uuid.uuid4().hex[:8]}.wav"
+        wav_path = config.AUDIO_RAW / wav_filename
+
+        try:
+            converted_path, metadata = await convert_to_wav_async(
+                input_path=raw_path,
+                output_path=wav_path,
+                target_sample_rate=16000,
+                target_channels=1
+            )
+
+            logger.info("session.audio.converted",
+                       session_id=self.session_id,
+                       raw_path=str(raw_path),
+                       wav_path=str(converted_path),
+                       duration_sec=metadata["converted_duration_sec"],
+                       compression_ratio=metadata["compression_ratio"])
+
+            # Clean up raw file (optional, to save disk space)
+            # raw_path.unlink(missing_ok=True)
+
+            return converted_path
+
+        except Exception as e:
+            logger.error("session.audio.conversion_failed",
+                        session_id=self.session_id,
+                        raw_path=str(raw_path),
+                        error=str(e))
+            raise RuntimeError(f"Audio conversion failed: {e}") from e
 
     async def _run_stt(self, audio_path: Path) -> str:
         """Run speech-to-text on audio file using Whisper"""
@@ -424,6 +538,16 @@ async def websocket_endpoint(websocket: WebSocket):
                     "Invalid JSON format",
                     "JSON_DECODE_ERROR"
                 )
+            except RuntimeError as e:
+                # Buffer limit exceeded (size/count/timeout)
+                await session.send_error(
+                    str(e),
+                    "BUFFER_LIMIT_EXCEEDED"
+                )
+                # Clear buffer to allow retry
+                session.audio_buffer.clear()
+                session.buffer_size_bytes = 0
+                session.buffer_first_chunk_time = None
 
     except WebSocketDisconnect:
         logger.info("session.disconnected", session_id=session_id)
