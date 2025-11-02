@@ -265,19 +265,30 @@ class LLMService:
 
 # Global singleton instance
 _llm_service: Optional[LLMService] = None
+_llm_service_lock = asyncio.Lock()
 
 
 async def get_llm_service() -> LLMService:
     """
     Get global LLM service instance (singleton pattern)
 
+    Thread-safe singleton using asyncio.Lock to prevent race conditions
+    in concurrent initialization.
+
     Returns:
         LLMService instance
     """
     global _llm_service
 
-    if _llm_service is None:
-        _llm_service = LLMService()
-        logger.info("llm.service_created")
+    # Fast path: if already initialized, return immediately
+    if _llm_service is not None:
+        return _llm_service
+
+    # Slow path: acquire lock and initialize
+    async with _llm_service_lock:
+        # Double-check after acquiring lock (another coroutine might have initialized)
+        if _llm_service is None:
+            _llm_service = LLMService()
+            logger.info("llm.service_created")
 
     return _llm_service

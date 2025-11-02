@@ -299,19 +299,30 @@ class TTSService:
 
 # Global singleton instance
 _tts_service: Optional[TTSService] = None
+_tts_service_lock = asyncio.Lock()
 
 
-def get_tts_service() -> TTSService:
+async def get_tts_service() -> TTSService:
     """
     Get global TTS service instance (singleton pattern)
+
+    Thread-safe singleton using asyncio.Lock to prevent race conditions
+    in concurrent initialization.
 
     Returns:
         TTSService instance
     """
     global _tts_service
 
-    if _tts_service is None:
-        _tts_service = TTSService()
-        logger.info("tts.service_created")
+    # Fast path: if already initialized, return immediately
+    if _tts_service is not None:
+        return _tts_service
+
+    # Slow path: acquire lock and initialize
+    async with _tts_service_lock:
+        # Double-check after acquiring lock (another coroutine might have initialized)
+        if _tts_service is None:
+            _tts_service = TTSService()
+            logger.info("tts.service_created")
 
     return _tts_service

@@ -148,19 +148,6 @@ class STTService:
             )
             raise RuntimeError(f"Transcription failed: {e}") from e
 
-    async def transcribe_quick(self, audio_path: Path) -> str:
-        """
-        Quick transcription (returns only text, no metadata)
-
-        Args:
-            audio_path: Path to audio file
-
-        Returns:
-            Transcribed text
-        """
-        text, _ = await self.transcribe(audio_path)
-        return text
-
     def unload_model(self):
         """Unload model to free memory"""
         if self._model is not None:
@@ -172,24 +159,35 @@ class STTService:
 
 # Global singleton instance
 _stt_service: Optional[STTService] = None
+_stt_service_lock = asyncio.Lock()
 
 
-def get_stt_service() -> STTService:
+async def get_stt_service() -> STTService:
     """
     Get global STT service instance (singleton pattern)
+
+    Thread-safe singleton using asyncio.Lock to prevent race conditions
+    in concurrent initialization.
 
     Returns:
         STTService instance
     """
     global _stt_service
 
-    if _stt_service is None:
-        model_size = config.WHISPER_MODEL_SIZE
-        _stt_service = STTService(
-            model_size=model_size,
-            device="cpu",
-            compute_type="int8"
-        )
-        logger.info("stt.service_created", model_size=model_size)
+    # Fast path: if already initialized, return immediately
+    if _stt_service is not None:
+        return _stt_service
+
+    # Slow path: acquire lock and initialize
+    async with _stt_service_lock:
+        # Double-check after acquiring lock (another coroutine might have initialized)
+        if _stt_service is None:
+            model_size = config.WHISPER_MODEL_SIZE
+            _stt_service = STTService(
+                model_size=model_size,
+                device="cpu",
+                compute_type="int8"
+            )
+            logger.info("stt.service_created", model_size=model_size)
 
     return _stt_service
