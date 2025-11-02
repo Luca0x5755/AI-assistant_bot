@@ -38,9 +38,10 @@ class Config:
     VRAM_LIMIT_GB: int = int(os.getenv("AVATAR_VRAM_LIMIT", "24"))
 
     # AI Model settings
-    WHISPER_MODEL: str = os.getenv("AVATAR_WHISPER_MODEL", "large-v3-turbo")
-    WHISPER_DEVICE: str = os.getenv("AVATAR_WHISPER_DEVICE", "cuda")
-    WHISPER_COMPUTE_TYPE: str = os.getenv("AVATAR_WHISPER_COMPUTE", "float16")
+    # ⚠️ Whisper uses CPU to avoid VRAM contention with LLM/TTS
+    WHISPER_MODEL_SIZE: str = os.getenv("AVATAR_WHISPER_MODEL", "base")  # tiny, base, small, medium, large
+    WHISPER_DEVICE: str = os.getenv("AVATAR_WHISPER_DEVICE", "cpu")  # Force CPU inference
+    WHISPER_COMPUTE_TYPE: str = os.getenv("AVATAR_WHISPER_COMPUTE", "int8")  # int8 for CPU efficiency
 
     VLLM_MODEL: str = os.getenv(
         "AVATAR_VLLM_MODEL",

@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "totalTasks": 32,
-  "completedTasks": 8,
+  "completedTasks": 11,
   "phases": [
     {
       "id": "phase-1",
@@ -94,20 +94,29 @@
         {
           "id": "task-9",
           "title": "實作 Whisper STT 服務",
-          "status": "pending",
-          "estimatedHours": 5
+          "status": "completed",
+          "assignee": "Claude Code",
+          "estimatedHours": 5,
+          "details": "stt.py with faster-whisper, CPU inference (int8), async API",
+          "completedAt": "2025-11-02T14:12:00Z"
         },
         {
           "id": "task-10",
           "title": "實作 vLLM 推理服務",
-          "status": "pending",
-          "estimatedHours": 6
+          "status": "completed",
+          "assignee": "Claude Code",
+          "estimatedHours": 6,
+          "details": "llm.py with AsyncLLMEngine, streaming support, Qwen2.5 chat template",
+          "completedAt": "2025-11-02T14:13:00Z"
         },
         {
           "id": "task-11",
           "title": "實作 F5-TTS Fast 模式",
-          "status": "pending",
-          "estimatedHours": 8
+          "status": "completed",
+          "assignee": "Claude Code",
+          "estimatedHours": 8,
+          "details": "tts.py with F5-TTS, voice cloning, GPU inference, async synthesis",
+          "completedAt": "2025-11-02T14:16:00Z"
         },
         {
           "id": "task-12",
