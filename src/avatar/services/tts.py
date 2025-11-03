@@ -226,6 +226,15 @@ class TTSService:
 
         Uses F5TTS high-level API for inference.
         """
+        # Workaround for F5-TTS bug: progress parameter expects object with .tqdm() method
+        # but code has bug where it calls progress.tqdm() instead of progress()
+        class NoOpProgress:
+            """No-op progress bar to suppress F5-TTS progress output"""
+            @staticmethod
+            def tqdm(iterable):
+                """Fake tqdm method that just returns the iterable"""
+                return iterable
+
         # Use F5TTS.infer() which handles everything
         self._model.infer(
             ref_file=str(ref_audio_path),
@@ -235,7 +244,7 @@ class TTSService:
             speed=self.speed,
             remove_silence=remove_silence,
             show_info=lambda x: None,  # Suppress print output
-            progress=lambda x: x  # Suppress progress bar
+            progress=NoOpProgress  # Suppress progress bar
         )
 
     async def synthesize_fast(
