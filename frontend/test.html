@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVATAR Frontend Test</title>
+    <style>
+        body {
+            background: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            margin: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: #111;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        .title {
+            color: #00ff00;
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .status {
+            color: #0088ff;
+            margin-bottom: 1rem;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+        .color-box {
+            height: 40px;
+            border-radius: 4px;
+        }
+        .blue { background: #0088ff; }
+        .pink { background: #ff0088; }
+        .gold { background: #ffaa00; }
+        .button {
+            background: #0088ff;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .info {
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">AVATAR Frontend Direct Test</h1>
+        <h2 class="status">Status: RUNNING ✅</h2>
+
+        <p>This is a direct HTML test. If you can see this but not the React app, there's a React/JavaScript issue.</p>
+
+        <div class="grid">
+            <div class="color-box blue"></div>
+            <div class="color-box pink"></div>
+            <div class="color-box gold"></div>
+        </div>
+
+        <button class="button" onclick="alert('Direct HTML test working!')">
+            Test Direct HTML
+        </button>
+
+        <div class="info">
+            <p><strong>Next:</strong></p>
+            <ul style="margin-left: 1rem;">
+                <li>If this works: React/TypeScript issue</li>
+                <li>If this doesn't work: Server/network issue</li>
+                <li>Check browser console for errors</li>
+            </ul>
+        </div>
+
+        <div style="margin-top: 2rem; padding: 1rem; background: #222; border-radius: 4px;">
+            <h3 style="color: #0088ff; margin-bottom: 0.5rem;">Debug Info:</h3>
+            <p style="font-size: 0.75rem;">
+                • Frontend: http://localhost:8080/<br>
+                • Backend: http://localhost:8000/<br>
+                • Vite Dev Server: Running<br>
+                • Time: <span id="time"></span>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('time').textContent = new Date().toLocaleString();
+        console.log('Direct HTML test loaded successfully');
+    </script>
+</body>
+</html>
