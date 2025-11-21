@@ -1,88 +1,71 @@
-[tool.poetry]
+# Refactored for uv and PEP 621 compatibility.
+# Original poetry sections have been replaced with [project].
+# Manual installation steps are preserved in comments as they are still required.
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[project]
 name = "avatar-mvp"
 version = "0.1.0"
 description = "AVATAR - AI Voice Assistant with Local Deployment (RTX 4090)"
-authors = ["AVATAR Team <noreply@example.com>"]
+authors = [
+    {name = "AVATAR Team", email = "noreply@example.com"},
+]
 readme = "README.md"
-package-mode = false
+requires-python = ">=3.10,<3.12"
+# =============================================================================
+# Core Dependencies
+# =============================================================================
+dependencies = [
+    # Web Framework & API
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "python-multipart>=0.0.6",  # 檔案上傳
+    "websockets>=12.0",
+    "aiohttp>=3.9.0",
 
-# 環境要求說明:
-# - Python: 3.10-3.12 (當前: 3.10.12)
-# - CUDA: 12.1 (系統安裝 12.5, 但 PyTorch 使用 cu121 runtime)
-# - GPU: RTX 3090 24GB (compute capability 8.6)
-# - VRAM: 24GB
-# - RAM: 32GB+
-#
-# ⚠️ 版本相容性矩陣 (已測試):
-# - PyTorch: 2.3.1+cu121 (固定版本，不可升級)
-# - vLLM: 0.5.3 (降級自 0.11.0，因 CosyVoice3 需求)
-# - pydantic: 2.7.0-2.10.6 (F5-TTS 與 CosyVoice3 共同相容區間)
-# - xformers: 0.0.27 (torch 2.3.1 相容版本)
-# - flash-attn: 2.5.8 (從源碼編譯，與 torch 2.3.1 相容)
+    # Database
+    "aiosqlite>=0.19.0",  # Async SQLite
 
-[tool.poetry.dependencies]
-python = ">=3.10,<3.13"
+    # Data Validation & Configuration
+    # ⚠️ pydantic 版本受 F5-TTS (<=2.10.6) 與 CosyVoice3 (2.7.0) 限制
+    "pydantic>=2.7.0,<=2.10.6",
+    "pydantic-settings>=2.0.0",
+    "python-dotenv>=1.0.0",
 
-# Web Framework & API
-fastapi = ">=0.104.0"
-uvicorn = {version = ">=0.24.0", extras = ["standard"]}
-python-multipart = ">=0.0.6"  # 檔案上傳
-websockets = ">=12.0"
-aiohttp = ">=3.9.0"
+    # Data Processing
+    "numpy>=1.24.0",
 
-# Database
-aiosqlite = ">=0.19.0"  # Async SQLite
+    # Async I/O
+    "aiofiles>=23.0.0",
 
-# Data Validation & Configuration
-# ⚠️ pydantic 版本受 F5-TTS (<=2.10.6) 與 CosyVoice3 (2.7.0) 限制
-pydantic = ">=2.7.0,<=2.10.6"
-pydantic-settings = ">=2.0.0"
-python-dotenv = ">=1.0.0"
+    # Logging & Monitoring
+    "structlog>=23.0.0",  # 結構化日誌
 
-# Data Processing
-numpy = ">=1.24.0"
+    # AI Models - some require manual installation, see guide below.
+    # ⚠️ vllm 降級：0.11.0 需要 torch 2.8.0，與 CosyVoice3 衝突
+    "vllm==0.5.3",
+    "faster-whisper>=1.2.1",
+    "hyperpyyaml>=1.2.2",
+    "modelscope>=1.31.0",
+    "openai-whisper>=20250625",
+    "inflect>=7.5.0",
+    "librosa>=0.11.0",
+    "slowapi>=0.1.9",
+]
 
-# Async I/O
-aiofiles = ">=23.0.0"
-
-# Logging & Monitoring
-structlog = ">=23.0.0"  # 結構化日誌
-
-# AI Models (⚠️ 必須手動安裝，Poetry 無法處理 CUDA 版本)
-# ⚠️ 安裝順序很重要！必須先安裝 PyTorch，再安裝 vLLM 和 TTS 系統
-#
-# 1. vLLM 0.5.3 (⚠️ 降級版本，因 CosyVoice3 需要 torch 2.3.1)
-#    poetry run pip install vllm==0.5.3
-#
-# 2. faster-whisper (STT 引擎)
-#    poetry run pip install faster-whisper>=1.2.1
-#
-# 3. F5-TTS 1.1.9 (快速 TTS)
-#    git clone https://github.com/SWivid/F5-TTS.git /tmp/F5-TTS
-#    poetry run pip install -e /tmp/F5-TTS
-#
-# 4. CosyVoice3 (高質 TTS)
-#    git clone https://github.com/FunAudioLLM/CosyVoice.git /tmp/CosyVoice
-#    poetry run pip install -r /tmp/CosyVoice/requirements.txt
-#
-# ⚠️ 已知問題: Poetry show 會顯示錯誤版本，請使用 pip list 檢查
-vllm = "0.5.3"  # ⚠️ 降級：0.11.0 需要 torch 2.8.0，與 CosyVoice3 衝突
-faster-whisper = "^1.2.1"
-hyperpyyaml = "^1.2.2"
-modelscope = "^1.31.0"
-openai-whisper = "^20250625"
-inflect = "^7.5.0"
-librosa = "^0.11.0"
-slowapi = "^0.1.9"
-
-[tool.poetry.group.dev.dependencies]
-pytest = ">=7.4.0"
-pytest-asyncio = ">=0.21.0"
-pytest-cov = ">=4.1.0"
-httpx = ">=0.25.0"  # For FastAPI testing
-black = ">=23.0.0"
-ruff = ">=0.1.0"
-mypy = ">=1.7.0"
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "httpx>=0.25.0",  # For FastAPI testing
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.7.0",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -97,73 +80,67 @@ markers = [
     "slow: Slow tests requiring GPU"
 ]
 
-# PyTorch with CUDA support - ⚠️ 固定版本 2.3.1，不可升級
-# 警告: 不要使用 poetry update torch，會破壞相容性！
-# ⚠️ 必須使用 2.3.1 版本，因為 CosyVoice3 強制要求 torch==2.3.1
-# 手動安裝命令: poetry run pip install torch==2.3.1 torchvision==0.18.1 torchaudio==2.3.1 --index-url https://download.pytorch.org/whl/cu121
-# 注意: Poetry 無法解析 +cu121 版本號，必須手動管理
-
-[[tool.poetry.source]]
-name = "pytorch-cu121"
-url = "https://download.pytorch.org/whl/cu121"
-priority = "explicit"
-
-# ⚠️ flash-attn 安裝指南 (已測試)
-# 版本: flash-attn==2.5.8 (與 PyTorch 2.3.1 相容)
-# 安裝方式: 必須從源碼編譯
-# 編譯時間: 約 30 秒 (RTX 3090, 4 並發任務)
-# 效能提升: 相比標準 attention 提升 10-15%
-# 安裝指令: MAX_JOBS=4 poetry run pip install flash-attn==2.5.8 --no-build-isolation --no-cache-dir
-
 # =============================================================================
-# 環境設置指南 (Environment Setup Guide)
+# 環境要求與手動安裝指南 (Environment & Manual Installation Guide)
 # =============================================================================
 #
-# 步驟 1: 安裝 Poetry
+# 環境要求說明:
+# - Python: 3.10-3.12 (當前: 3.10.12)
+# - CUDA: 12.1 (系統安裝 12.5, 但 PyTorch 使用 cu121 runtime)
+# - GPU: RTX 3090 24GB (compute capability 8.6)
+# - VRAM: 24GB
+# - RAM: 32GB+
+#
+# ⚠️ 版本相容性矩陣 (已測試):
+# - PyTorch: 2.3.1+cu121 (固定版本，不可升級)
+# - vLLM: 0.5.3 (降級自 0.11.0，因 CosyVoice3 需求)
+# - pydantic: 2.7.0-2.10.6 (F5-TTS 與 CosyVoice3 共同相容區間)
+# - xformers: 0.0.27 (torch 2.3.1 相容版本)
+# - flash-attn: 2.5.8 (從源碼編譯，與 torch 2.3.1 相容)
+#
+# -----------------------------------------------------------------------------
+# 安裝步驟 (Installation Steps)
+# -----------------------------------------------------------------------------
+#
+# 步驟 1: 安裝 uv
 #   Linux/macOS/WSL:
-#     curl -sSL https://install.python-poetry.org | python3 -
-#     echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
-#     source ~/.bashrc
+#     curl -LsSf https://astral.sh/uv/install.sh | sh
 #   Windows (PowerShell):
-#     (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
+#     powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 #
-# 步驟 2: 配置 Poetry
-#   poetry config virtualenvs.in-project true
+# 步驟 2: 創建並激活虛擬環境
+#   uv venv
+#   source .venv/bin/activate  # Linux/macOS/WSL
+#   .venv\Scripts\activate      # Windows
 #
-# 步驟 3: 安裝基礎依賴
-#   poetry install --no-root
+# 步驟 3: 安裝基礎依賴 (不含 AI 模型)
+#   uv pip install -e .[dev]
 #
-# 步驟 4: 激活虛擬環境
-#   方法 A: poetry env activate  # Poetry 2.0+
-#   方法 B: source .venv/bin/activate  # Linux/macOS/WSL
-#   方法 C: .venv\Scripts\activate  # Windows
+# 步驟 4: 安裝 PyTorch 2.3.1 (⚠️ 固定版本，不可升級)
+#   uv pip install torch==2.3.1 torchvision==0.18.1 torchaudio==2.3.1 --index-url https://download.pytorch.org/whl/cu121
 #
-# 步驟 5: 安裝 PyTorch 2.3.1 (⚠️ 固定版本，不可升級)
-#   poetry run pip install torch==2.3.1 torchvision==0.18.1 torchaudio==2.3.1 --index-url https://download.pytorch.org/whl/cu121
+# 步驟 5: 安裝 AI 推理引擎 (已在 dependencies 中聲明)
+#   uv pip install vllm==0.5.3
+#   uv pip install faster-whisper>=1.2.1
 #
-# 步驟 6: 安裝 AI 推理引擎
-#   poetry run pip install vllm==0.5.3  # ⚠️ 降級版本，因 CosyVoice3 需求
-#   poetry run pip install faster-whisper>=1.2.1
-#
-# 步驟 7: 安裝 F5-TTS (快速 TTS)
+# 步驟 6: 安裝 F5-TTS (快速 TTS, from Git)
 #   git clone https://github.com/SWivid/F5-TTS.git /tmp/F5-TTS
-#   poetry run pip install -e /tmp/F5-TTS
+#   uv pip install -e /tmp/F5-TTS
 #
-# 步驟 8: 安裝 CosyVoice3 (高質 TTS)
+# 步驟 7: 安裝 CosyVoice3 (高質 TTS, from Git)
 #   git clone https://github.com/FunAudioLLM/CosyVoice.git /tmp/CosyVoice
-#   poetry run pip install -r /tmp/CosyVoice/requirements.txt
+#   uv pip install -r /tmp/CosyVoice/requirements.txt
 #   # 注意: CosyVoice3 無 setup.py，需手動從 /tmp/CosyVoice 匯入
 #
-# 步驟 9: 安裝 flash-attn (可選，提升 10-15% 效能)
-#   MAX_JOBS=4 poetry run pip install flash-attn==2.5.8 --no-build-isolation --no-cache-dir
+# 步驟 8: 安裝 flash-attn (可選，提升 10-15% 效能)
+#   MAX_JOBS=4 uv pip install flash-attn==2.5.8 --no-build-isolation --no-cache-dir
 #
-# 步驟 10: 驗證安裝
-#   poetry run python -c "import torch; import vllm; from f5_tts.model.cfm import CFM; import flash_attn; print('✅ 所有套件正常')"
+# 步驟 9: 驗證安裝
+#   uv run python -c "import torch; import vllm; from f5_tts.model.cfm import CFM; import flash_attn; print('✅ 所有套件正常')"
 #
 # ⚠️ 已知問題:
-#   - Poetry show 顯示版本不正確，請使用 poetry run pip list 檢查
 #   - ffmpeg 需另外安裝: sudo apt install ffmpeg (音訊處理必需)
-#   - flash-attn 必須從源碼編譯，無法透過 Poetry 管理
+#   - flash-attn 必須從源碼編譯，無法透過 uv 直接管理
 #
 # 當前開發環境 (2025-11-02 更新):
 # - OS: Windows 11 / WSL2 Ubuntu 22.04
@@ -179,7 +156,3 @@ priority = "explicit"
 # 相容性矩陣測試日期: 2025-11-02
 # 測試結果: ✅ 所有核心功能正常，CUDA 正常運作
 # =============================================================================
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
