@@ -37,44 +37,40 @@
 
 ### 安裝步驟
 
-#### 1. 安裝 Poetry
+#### 1. 安裝 uv
 
 ```bash
 # Linux / macOS / WSL (推薦開發環境)
-curl -sSL https://install.python-poetry.org | python3 -
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+curl -LsSf https://astral.sh/uv/install.sh | sh
+echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 
 # Windows (PowerShell)
-(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
 #### 2. 配置與安裝依賴
 
 ```bash
-# 配置 Poetry
-poetry config virtualenvs.in-project true
+# 創建虛擬環境
+uv venv
+source .venv/bin/activate
 
 # 安裝基礎依賴
-poetry install --no-root
-
-# 激活虛擬環境
-poetry env activate  # 執行顯示的命令
-# 或: source .venv/bin/activate (Linux/macOS/WSL)
-# 或: .venv\Scripts\activate (Windows)
+uv pip install -e .[dev]
 ```
 
 #### 3. 安裝 PyTorch (CUDA)
 
 ```bash
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 ```
 
 #### 4. 安裝 AI 模型套件
 
 ```bash
-pip install vllm>=0.6.0
-pip install faster-whisper
+uv pip install vllm>=0.6.0
+uv pip install faster-whisper
 
 # F5-TTS 與 CosyVoice3 參考官方 repo 安裝
 ```
@@ -82,7 +78,7 @@ pip install faster-whisper
 #### 5. 驗證安裝
 
 ```bash
-python scripts/validate_setup.py
+uv run python scripts/validate_setup.py
 ```
 
 預期輸出：
@@ -147,7 +143,7 @@ avatar/
 │   ├── download_models.py   # 模型下載腳本
 │   └── validate_setup.py    # 環境驗證腳本
 ├── frontend/                # React 前端
-├── pyproject.toml           # Poetry 專案配置
+├── pyproject.toml           # uv/Poetry 專案配置
 └── README.md                # 本文件
 ```
 
@@ -158,8 +154,8 @@ avatar/
 ### 啟動後端服務
 
 ```bash
-# 方法 1: 使用 Poetry run
-poetry run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+# 方法 1: 使用 uv run
+uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 # 方法 2: 在激活環境後直接執行
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
@@ -274,10 +270,10 @@ curl http://localhost:8000/health
 - ✅ TTS 任務佇列可用 Python asyncio.Queue
 - ✅ 減少外部依賴，降低部署複雜度
 
-### 為什麼用 Poetry 而非 pip？
-- ✅ 依賴鎖定：`poetry.lock` 確保環境可複製
-- ✅ 虛擬環境管理：自動建立與管理
-- ✅ 依賴解析：避免 "dependency hell"
+### 為什麼用 uv 而非 pip？
+- ✅ 極速：`uv` 在依賴解析和安裝上比 `pip` 和 `poetry` 快得多
+- ✅ 依賴鎖定：`uv.lock` 確保環境可複製
+- ✅ 虛擬環境管理：`uv` 內建虛擬環境管理，無需手動 `venv`
 
 ---
 

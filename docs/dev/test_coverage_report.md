@@ -504,13 +504,13 @@ export PYTHONPATH=src:$PYTHONPATH
 poetry run python -m pytest tests/unit/ -v
 
 # 整合測試
-poetry run python tests/e2e_pipeline_test.py
+uv run python tests/e2e_pipeline_test.py
 
 # 覆蓋率報告
-poetry run python -m pytest tests/unit/ --cov=src --cov-report=html
+uv run python -m pytest tests/unit/ --cov=src --cov-report=html
 
 # Task 驗證
-poetry run python test_task13_validation.py
+uv run python test_task13_validation.py
 ```
 
 ### 🔧 環境要求
@@ -522,7 +522,7 @@ export LD_LIBRARY_PATH=.cuda_compat:$LD_LIBRARY_PATH
 
 # Python 環境
 export PYTHONPATH=src:$PYTHONPATH
-poetry shell
+source .venv/bin/activate
 ```
 
 ---

@@ -182,7 +182,7 @@ Hub 協調策略: Hybrid (Sequential Setup → Parallel Development)
 
 **Phase 1: 專案設置與環境準備** (6 tasks, Week 0-1)
 1. ✅ 建立完整專案目錄結構
-2. [ ] 配置 Poetry 虛擬環境與依賴安裝
+2. [ ] 配置 uv 虛擬環境與依賴安裝
 3. [ ] 下載並驗證 AI 模型
 4. [ ] 建立 SQLite 資料庫 schema
 5. [ ] 初始化 Git 與 GitHub 遠端倉庫
@@ -413,7 +413,7 @@ avatar/
 │   └── taskmaster-data/
 │       ├── project.json
 │       └── wbs-todos.json
-├── pyproject.toml           # Poetry 配置
+├── pyproject.toml           # uv/Poetry 配置
 ├── CLAUDE.md                # 本文件
 └── README.md                # 專案說明
 ```
@@ -425,7 +425,7 @@ avatar/
 **核心精神：人類是鋼彈駕駛員，Claude 是搭載 Linus 心法的智能副駕駛系統，TaskMaster 是協調中樞** 🤖⚔️
 
 **當前狀態**: TaskMaster 已初始化 ✅
-**下一步**: 執行 Phase 1, Task 2 - 配置 Poetry 虛擬環境
+**下一步**: 執行 Phase 1, Task 2 - 配置 uv 虛擬環境
 
 ---
 

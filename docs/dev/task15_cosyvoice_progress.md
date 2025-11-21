@@ -35,9 +35,9 @@
 
 **2. 基礎依賴安裝**:
 ```bash
-✅ poetry add hyperpyyaml modelscope
-✅ poetry add inflect librosa
-✅ poetry add openai-whisper
+✅ uv pip install hyperpyyaml modelscope
+✅ uv pip install inflect librosa
+✅ uv pip install openai-whisper
 ```
 
 ### 🔄 進行中

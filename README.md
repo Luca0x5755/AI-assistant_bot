@@ -47,9 +47,9 @@
 ### 1. 環境準備
 
 ```bash
-# 安裝 Poetry
-curl -sSL https://install.python-poetry.org | python3 -
-export PATH="$HOME/.local/bin:$PATH"
+# 安裝 uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source ~/.bashrc # Or ~/.zshrc
 
 # 克隆專案
 git clone <repo-url> avatar
@@ -59,30 +59,34 @@ cd avatar
 ### 2. 一鍵安裝
 
 ```bash
-# 配置環境
-poetry config virtualenvs.in-project true
+# 創建並激活虛擬環境
+uv venv
+source .venv/bin/activate
 
 # 安裝依賴
-poetry install --no-root
+uv pip install -e .[dev]
 
 # 安裝 PyTorch (CUDA 12.1)
-poetry run pip install torch==2.3.1 torchvision==0.18.1 torchaudio==2.3.1 --index-url https://download.pytorch.org/whl/cu121
+uv pip install torch==2.3.1 torchvision==0.18.1 torchaudio==2.3.1 --index-url https://download.pytorch.org/whl/cu121
 
 # 安裝 AI 模型套件
-poetry run pip install vllm==0.5.3
-poetry run pip install faster-whisper>=1.2.1
+uv pip install vllm==0.5.3
+uv pip install faster-whisper>=1.2.1
 ```
 
 ### 3. 啟動服務
 
 ```bash
+# 激活環境 (如果尚未激活)
+source .venv/bin/activate
+
 # 設置環境
 export PYTHONPATH=src:$PYTHONPATH
 export AVATAR_ENV=development
 export AVATAR_API_TOKEN=dev-token-change-in-production
 
 # 啟動 AVATAR
-poetry run uvicorn avatar.main:app --host 0.0.0.0 --port 8000 --reload
+uv run uvicorn avatar.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### 4. 驗證運行
@@ -153,15 +157,15 @@ WS     /ws/chat                         語音對話     📖 Open  (E2E 1.87s)
 
 ```bash
 # 完整 API 測試套件
-poetry run pytest tests/integration/test_task16_completion.py -v
+uv run pytest tests/integration/test_task16_completion.py -v
 # ✅ Result: 11/11 tests passed
 
 # 安全測試驗證
-poetry run pytest tests/integration/test_conversation_api.py -v
+uv run pytest tests/integration/test_conversation_api.py -v
 # ✅ Result: 7/7 tests passed
 
 # WebSocket E2E 測試
-poetry run pytest tests/e2e/test_websocket_full.py -v
+uv run pytest tests/e2e/test_websocket_full.py -v
 # ✅ Result: 3/3 tests passed
 ```
 
@@ -300,26 +304,26 @@ RTX 2000 Ada (輔助 GPU, 15.6GB):
 # 1. 克隆專案
 git clone <repo-url> avatar && cd avatar
 
-# 2. 安裝 Poetry
-curl -sSL https://install.python-poetry.org | python3 -
-export PATH="$HOME/.local/bin:$PATH"
+# 2. 安裝 uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source ~/.bashrc # Or ~/.zshrc
 
-# 3. 配置環境
-poetry config virtualenvs.in-project true
-poetry install --no-root
+# 3. 創建並激活虛擬環境
+uv venv
+source .venv/bin/activate
 
 # 4. 安裝 GPU 依賴
-poetry run pip install torch==2.3.1 torchvision==0.18.1 torchaudio==2.3.1 --index-url https://download.pytorch.org/whl/cu121
-poetry run pip install vllm==0.5.3 faster-whisper>=1.2.1
+uv pip install torch==2.3.1 torchvision==0.18.1 torchaudio==2.3.1 --index-url https://download.pytorch.org/whl/cu121
+uv pip install vllm==0.5.3 faster-whisper>=1.2.1
 
 # 5. 安裝 TTS 引擎
 git clone https://github.com/SWivid/F5-TTS.git /tmp/F5-TTS
-poetry run pip install -e /tmp/F5-TTS
+uv pip install -e /tmp/F5-TTS
 
 # 6. 啟動服務 (自動預載入所有模型)
 export PYTHONPATH=src:$PYTHONPATH
 export AVATAR_API_TOKEN=your-secure-token
-poetry run uvicorn avatar.main:app --host 0.0.0.0 --port 8000
+uv run uvicorn avatar.main:app --host 0.0.0.0 --port 8000
 ```
 
 ### 驗證安裝
@@ -463,7 +467,7 @@ avatar/ (Phase 3 Backend Complete)
 ├── 📁 CosyVoice/               # CosyVoice2 模型 (4.8GB)
 │   └── pretrained_models/
 ├── app.db                      # SQLite 數據庫 (WAL 模式)
-├── pyproject.toml              # Poetry 配置
+├── pyproject.toml              # uv/Poetry 配置
 └── CLAUDE.md                   # TaskMaster 配置
 ```
 
@@ -495,15 +499,15 @@ avatar/ (Phase 3 Backend Complete)
 
 ```bash
 # 快速服務測試
-poetry run python tests/quick_service_test.py
+uv run python tests/quick_service_test.py
 # ✅ Expected: 4/4 services (VRAM, STT, LLM, TTS)
 
 # API 功能測試
-poetry run pytest tests/integration/ -v
+uv run pytest tests/integration/ -v
 # ✅ Expected: 21/21 integration tests
 
 # 完整測試套件
-poetry run pytest tests/ --cov=src --cov-report=html
+uv run pytest tests/ --cov=src --cov-report=html
 # 📊 Coverage: 31% (核心路徑覆蓋)
 ```
 
@@ -608,7 +612,7 @@ poetry run pytest tests/ --cov=src --cov-report=html
 nvidia-smi
 
 # 清理 GPU 記憶體
-poetry run python -c "import torch; torch.cuda.empty_cache()"
+uv run python -c "import torch; torch.cuda.empty_cache()"
 
 # 降低並發設置
 export AVATAR_MAX_SESSIONS=3

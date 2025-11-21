@@ -251,33 +251,33 @@ audio/
 
 ### 7.1 部署方式
 
-#### 步驟 1: 安裝 Poetry
+#### 步驟 1: 安裝 uv
 
 ```bash
 # Linux / macOS / WSL (推薦開發環境)
-curl -sSL https://install.python-poetry.org | python3 -
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Windows (PowerShell)
-(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
 **配置 PATH 環境變數**（Linux/macOS/WSL）:
 
 ```bash
 # bash 用戶
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 
 # zsh 用戶（macOS 預設）
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
+echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-#### 步驟 2: 配置 Poetry（建議）
+#### 步驟 2: 創建虛擬環境
 
 ```bash
-# 在專案目錄內建立虛擬環境（便於管理）
-poetry config virtualenvs.in-project true
+# 在專案目錄內建立虛擬環境
+uv venv
 ```
 
 #### 步驟 3: 安裝專案依賴
@@ -286,23 +286,18 @@ poetry config virtualenvs.in-project true
 # 進入專案根目錄
 cd avatar/
 
+# 激活虛擬環境
+source .venv/bin/activate
+
 # 安裝核心依賴
-poetry install --no-root
+uv pip install -e .
 
 # 或安裝所有依賴（包含可選項）
-poetry install --no-root --all-extras
+uv pip install -e ".[dev]"
 ```
 
 #### 步驟 4: 激活虛擬環境
 
-**方法 A: 使用 Poetry 命令**（Poetry 2.0+ 推薦）
-```bash
-poetry env activate
-# 執行顯示的命令，例如：
-# source /path/to/.venv/bin/activate
-```
-
-**方法 B: 直接激活**
 ```bash
 # Linux / macOS / WSL
 source .venv/bin/activate
@@ -319,62 +314,29 @@ source .venv/bin/activate
 **5.1 安裝 PyTorch (CUDA 12.1)**
 
 ```bash
-# 方法 A: 在激活的 Poetry 環境中安裝（推薦）
 # 確保已激活環境（見步驟 4）
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-
-# 方法 B: 使用 poetry run
-poetry run pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 ```
 
 **5.2 安裝 Flash-Attention（可選，提升性能）**
 
-Flash-Attention 需要從源碼編譯，且需要在 Poetry 的虛擬環境中安裝。以下是跨平台的方法：
-
-**方法 A: 使用 poetry shell（推薦，最簡單）**
-
-```bash
-# Linux / macOS / WSL
-poetry shell
-# 此時你已進入 Poetry 的虛擬環境，執行：
-MAX_JOBS=4 pip install flash-attn --no-build-isolation --no-cache-dir
-exit  # 退出 shell
-
-# Windows PowerShell（PowerShell 不支持 MAX_JOBS= 語法）
-poetry shell
-$env:MAX_JOBS=4; pip install flash-attn --no-build-isolation --no-cache-dir
-exit
-
-# Windows CMD
-poetry shell
-set MAX_JOBS=4 && pip install flash-attn --no-build-isolation --no-cache-dir
-exit
-```
-
-**方法 B: 手動激活虛擬環境**
+Flash-Attention 需要從源碼編譯。
 
 ```bash
 # Linux / macOS / WSL
 source .venv/bin/activate
-MAX_JOBS=4 pip install flash-attn --no-build-isolation --no-cache-dir
+MAX_JOBS=4 uv pip install flash-attn --no-build-isolation --no-cache-dir
 deactivate
 
 # Windows PowerShell
 .venv\Scripts\Activate.ps1
-$env:MAX_JOBS=4; pip install flash-attn --no-build-isolation --no-cache-dir
+$env:MAX_JOBS=4; uv pip install flash-attn --no-build-isolation --no-cache-dir
 deactivate
 
 # Windows CMD
 .venv\Scripts\activate.bat
-set MAX_JOBS=4 && pip install flash-attn --no-build-isolation --no-cache-dir
+set MAX_JOBS=4 && uv pip install flash-attn --no-build-isolation --no-cache-dir
 deactivate
-```
-
-**方法 C: 使用 poetry run（僅 Linux/macOS/WSL）**
-
-```bash
-# 注意: Windows PowerShell 不支援此語法
-MAX_JOBS=4 poetry run pip install flash-attn --no-build-isolation --no-cache-dir
 ```
 
 **說明**:
@@ -382,7 +344,7 @@ MAX_JOBS=4 poetry run pip install flash-attn --no-build-isolation --no-cache-dir
 - `--no-build-isolation`: 使用當前環境的編譯工具，而非建立隔離環境
 - `--no-cache-dir`: 不緩存編譯產物，節省空間
 - **編譯時間**: 首次安裝約需 10-30 分鐘，取決於 CPU 和記憶體
-- **驗證安裝**: `poetry run python -c "import flash_attn; print('Flash-Attention installed successfully')"`
+- **驗證安裝**: `uv run python -c "import flash_attn; print(\'Flash-Attention installed successfully\')"`
 
 #### 步驟 6: 下載 AI 模型
 
@@ -393,7 +355,7 @@ MAX_JOBS=4 poetry run pip install flash-attn --no-build-isolation --no-cache-dir
 ./scripts/avatar-scripts setup-env
 
 # 方法 B: 直接執行腳本
-poetry run python scripts/setup/download_models.py
+uv run python scripts/setup/download_models.py
 # 或在激活環境後：python scripts/setup/download_models.py
 
 # 查看所有可用腳本功能
@@ -403,11 +365,11 @@ poetry run python scripts/setup/download_models.py
 #### 步驟 7: 啟動後端服務
 
 ```bash
-# 使用 Poetry run (推薦)
-PYTHONPATH=src poetry run uvicorn avatar.main:app --host 0.0.0.0 --port 8000 --reload
+# 使用 uv run (推薦)
+PYTHONPATH=src uv run uvicorn avatar.main:app --host 0.0.0.0 --port 8000 --reload
 
 # 或使用 Python 模組方式
-PYTHONPATH=src poetry run python -m avatar.main
+PYTHONPATH=src uv run python -m avatar.main
 
 # 在激活環境後直接執行
 source .venv/bin/activate  # Linux/macOS/WSL
@@ -518,66 +480,59 @@ npm run dev
 
 ---
 
-### A4. 為什麼用 Poetry 而非 pip？
+### A4. 為什麼用 uv 而非 pip？
 
-**決策**: Poetry
+**決策**: uv
 **理由**:
-- **依賴鎖定**: `poetry.lock` 確保環境可複製（pip 的 `requirements.txt` 版本易飄移）
-- **虛擬環境管理**: Poetry 自動建立與管理虛擬環境，無需手動 `venv`
-- **依賴解析**: 自動解決依賴衝突，避免 "dependency hell"
-- **現代化工具**: 遵循 PEP 518/621，是 Python 社群的最佳實踐
-- **專案隔離**: ML 專案的 CUDA/PyTorch 版本管理更清晰
+- **極速**: `uv` 在依賴解析和安裝上比 `pip` 和 `poetry` 快得多。
+- **依賴鎖定**: `uv.lock` 確保環境可複製（`pip` 的 `requirements.txt` 版本易飄移）。
+- **虛擬環境管理**: `uv` 內建虛擬環境管理，無需手動 `venv`。
+- **現代化工具**: `uv` 是一個整合的 Python 套件管理工具，遵循現代 Python 標準。
+- **專案隔離**: ML 專案的 CUDA/PyTorch 版本管理更清晰。
 
 **權衡**:
-- ❌ 需額外安裝 Poetry（一次性成本）
-- ❌ GPU 依賴（PyTorch CUDA）需手動 pip 安裝（Poetry 無法處理 `+cu121` 版本號）
-- ✅ 長期維護成本更低
-- ✅ 團隊協作時環境一致性更好
-- ✅ 可複製性高（對 ML 專案至關重要）
+- ❌ 需額外安裝 `uv`（一次性成本）。
+- ❌ GPU 依賴（PyTorch CUDA）仍需手動 `pip` 安裝（`uv` 無法處理 `+cu121` 版本號）。
+- ✅ 長期維護成本更低。
+- ✅ 團隊協作時環境一致性更好。
+- ✅ 可複製性高（對 ML 專案至關重要）。
 
 **常用指令**:
 ```bash
 # 環境管理
-poetry install --no-root          # 安裝依賴（非套件專案）
-poetry install --all-extras       # 安裝所有可選依賴
-poetry config virtualenvs.in-project true  # 本地 .venv
+uv venv                       # 創建虛擬環境
+source .venv/bin/activate     # 激活虛擬環境
 
 # 依賴管理
-poetry add fastapi                # 新增依賴
-poetry add --group dev pytest     # 新增開發依賴
-poetry remove package             # 移除依賴
-poetry show                       # 列出已安裝套件
+uv pip install fastapi        # 新增依賴
+uv pip install ".[dev]"       # 安裝開發依賴
+uv pip uninstall package      # 移除依賴
+uv pip list                   # 列出已安裝套件
 
 # 執行
-poetry env activate               # 顯示激活命令（Poetry 2.0+）
-poetry run python app.py          # 在虛擬環境中執行
-poetry run uvicorn app.main:app   # 啟動服務
-
-# 環境資訊
-poetry env info                   # 查看虛擬環境資訊
-poetry env list                   # 列出所有虛擬環境
-poetry env remove python          # 刪除虛擬環境
+uv run python app.py          # 在虛擬環境中執行
+uv run uvicorn app.main:app   # 啟動服務
 ```
 
 **已知問題與解決方案**:
 
 1. **PyTorch CUDA 版本問題**
-   - 問題: Poetry 無法解析 `torch==2.5.1+cu121` 格式
-   - 解決: 使用 pip 手動安裝 PyTorch
+   - 問題: `uv` 無法解析 `torch==2.5.1+cu121` 格式
+   - 解決: 使用 `uv pip` 手動安裝 PyTorch
    ```bash
-   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+   uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
    ```
 
 2. **Flash-Attention 編譯問題**
    - 問題: 需要從源碼編譯，耗時且易失敗
    - 解決: 限制並行編譯數或使用預編譯 wheel
    ```bash
-   MAX_JOBS=4 pip install flash-attn --no-build-isolation --no-cache-dir
+   MAX_JOBS=4 uv pip install flash-attn --no-build-isolation --no-cache-dir
    ```
 
-3. **Poetry 依賴解析緩慢**
-   - 問題: 大型專案依賴解析可能需要數分鐘
-   - 解決: 使用 `--no-root` 加速，必要時用 pip 安裝特定套件
+3. **`uv` 依賴解析緩慢**
+   - 問題: 在極大型專案中，依賴解析可能需要一些時間
+   - 解決: 確保 `pyproject.toml` 依賴清晰，必要時使用 `--no-deps` 安裝特定套件
 
 ---
 
@@ -652,9 +607,9 @@ avatar/
 │   ├── public/
 │   └── package.json
 ├── data/                    # 數據存儲
-├── .venv/                   # Poetry 虛擬環境 (本地)
-├── pyproject.toml           # Poetry 專案配置
-├── poetry.lock              # 依賴版本鎖定
+├── .venv/                   # uv 虛擬環境 (本地)
+├── pyproject.toml           # uv/Poetry 專案配置
+├── uv.lock              # 依賴版本鎖定
 ├── app.db                   # SQLite 資料庫檔案
 ├── .gitignore               # Git 忽略規則
 ├── CLAUDE.md                # TaskMaster 專案配置檔案
@@ -664,13 +619,12 @@ avatar/
 ### pyproject.toml 範例
 
 ```toml
-[tool.poetry]
+[project]
 name = "avatar-mvp"
 version = "0.1.0"
 description = "AI Voice Assistant - Local deployment with RTX 3090"
 authors = ["Team <noreply@example.com>"]
 readme = "README.md"
-package-mode = false  # 非套件專案，僅依賴管理
 
 # 環境要求說明:
 # - Python: 3.11-3.12
@@ -678,57 +632,60 @@ package-mode = false  # 非套件專案，僅依賴管理
 # - GPU: RTX 3090 24GB (compute capability 8.6)
 # - VRAM: 24GB
 
-[tool.poetry.dependencies]
-python = ">=3.11,<3.13"
+dependencies = [
+    # Web Framework
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "python-multipart>=0.0.6",  # 檔案上傳
+    "websockets>=12.0",
 
-# Web Framework
-fastapi = ">=0.104.0"
-uvicorn = {version = ">=0.24.0", extras = ["standard"]}
-python-multipart = ">=0.0.6"  # 檔案上傳
-websockets = ">=12.0"
+    # Database
+    "aiosqlite>=0.19.0",  # Async SQLite
 
-# Database
-aiosqlite = ">=0.19.0"  # Async SQLite
+    # AI Models (僅介面，實際透過外部服務)
+    # vLLM, faster-whisper, F5-TTS 需另外安裝
 
-# AI Models (僅介面，實際透過外部服務)
-# vLLM, faster-whisper, F5-TTS 需另外安裝
+    # Data Processing
+    "numpy>=1.24.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
 
-# Data Processing
-numpy = ">=1.24.0"
-pydantic = ">=2.0.0"
-pydantic-settings = ">=2.0.0"
+    # Utilities
+    "python-dotenv>=1.0.0",
+    "aiofiles>=23.0.0",
+]
 
-# Utilities
-python-dotenv = ">=1.0.0"
-aiofiles = ">=23.0.0"
-
-[tool.poetry.group.dev.dependencies]
-pytest = ">=7.4.0"
-pytest-asyncio = ">=0.21.0"
-black = ">=23.0.0"
-ruff = ">=0.1.0"
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+]
 
 # =============================================================================
 # 環境設置指南 (Environment Setup Guide)
 # =============================================================================
 #
-# 1. 安裝 Poetry:
-#    curl -sSL https://install.python-poetry.org | python3 -
-#    poetry config virtualenvs.in-project true
+# 1. 安裝 uv:
+#    curl -LsSf https://astral.sh/uv/install.sh | sh
 #
-# 2. 安裝基礎依賴:
-#    poetry install --no-root
+# 2. 創建虛擬環境:
+#    uv venv
 #
-# 3. 安裝 PyTorch (CUDA 12.1):
-#    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+# 3. 安裝基礎依賴:
+#    uv pip install -e ".[dev]"
 #
-# 4. 安裝 AI 模型套件:
-#    pip install vllm>=0.6.0
-#    pip install faster-whisper
+# 4. 安裝 PyTorch (CUDA 12.1):
+#    uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+#
+# 5. 安裝 AI 模型套件:
+#    uv pip install vllm>=0.6.0
+#    uv pip install faster-whisper
 #    # F5-TTS 參考官方 repo 安裝
 #
-# 5. 驗證安裝:
-#    python -c "import torch, vllm; print(f'PyTorch: {torch.__version__}, CUDA: {torch.cuda.is_available()}')"
+# 6. 驗證安裝:
+#    uv run python -c "import torch, vllm; print(f'PyTorch: {torch.__version__}, CUDA: {torch.cuda.is_available()}')"
 #
 # 當前開發環境:
 # - OS: Windows 11 / WSL2 Ubuntu 22.04
@@ -744,28 +701,25 @@ build-backend = "poetry.core.masonry.api"
 ```
 
 **注意事項**:
-- `package-mode = false`: 因為這是應用專案而非 Python 套件
-- `--no-root`: Poetry 安裝時不嘗試安裝專案本身為套件
-- GPU 依賴（PyTorch, vLLM）需在 Poetry 安裝後手動使用 pip 安裝
-
+- GPU 依賴（PyTorch, vLLM）需在 `uv` 安裝後手動使用 `uv pip` 安裝。
 ---
 
 ## 附錄 C：故障排除與常見問題
 
-### C1. Poetry 安裝問題
+### C1. `uv` 安裝問題
 
-**問題**: 執行 `poetry` 命令時顯示 "command not found"
+**問題**: 執行 `uv` 命令時顯示 "command not found"
 **解決方案**:
 ```bash
-# 確認 Poetry 已安裝
-ls -la ~/.local/bin/poetry
+# 確認 uv 已安裝
+ls -la ~/.cargo/bin/uv
 
 # 如果存在，將路徑加入 PATH
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 
 # 驗證
-poetry --version
+uv --version
 ```
 
 ---
@@ -779,33 +733,33 @@ poetry --version
 nvidia-smi
 
 # 2. 檢查 PyTorch 版本
-python -c "import torch; print(f'PyTorch: {torch.__version__}, CUDA Available: {torch.cuda.is_available()}')"
+uv run python -c "import torch; print(f'PyTorch: {torch.__version__}, CUDA Available: {torch.cuda.is_available()}')"
 
 # 3. 重新安裝匹配的 PyTorch 版本
-pip uninstall torch torchvision torchaudio
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+uv pip uninstall torch torchvision torchaudio
+uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 ```
 
 **常見原因**:
 - CUDA 版本與 PyTorch 不匹配（例如 CUDA 12.1 卻安裝 CPU 版 PyTorch）
-- Poetry 自動安裝了 CPU 版本（覆蓋了手動安裝的 CUDA 版）
+- `uv` 自動安裝了 CPU 版本（覆蓋了手動安裝的 CUDA 版）
 - 系統未安裝 NVIDIA 驅動或 CUDA Toolkit
 
 ---
 
 ### C3. vLLM 安裝失敗
 
-**問題**: `pip install vllm` 出現編譯錯誤
+**問題**: `uv pip install vllm` 出現編譯錯誤
 **解決方案**:
 ```bash
 # 方法 1: 使用預編譯 wheel（推薦）
-pip install vllm --find-links https://vllm-wheels.s3.us-west-2.amazonaws.com/nightly/vllm-latest-py3-none-any.whl
+uv pip install vllm --find-links https://vllm-wheels.s3.us-west-2.amazonaws.com/nightly/vllm-latest-py3-none-any.whl
 
 # 方法 2: 確保 CUDA 工具鏈完整
 sudo apt install build-essential cuda-toolkit-12-1
 
 # 方法 3: 降級到穩定版本
-pip install vllm==0.5.4
+uv pip install vllm==0.5.4
 ```
 
 ---
@@ -868,54 +822,44 @@ sudo ufw allow 8000/tcp
 
 ### C6. Flash-Attention 編譯失敗
 
-**問題**: `pip install flash-attn` 編譯超時或錯誤
+**問題**: `uv pip install flash-attn` 編譯超時或錯誤
 
 **診斷步驟**:
 ```bash
-# 1. 確認在 Poetry 虛擬環境中
-poetry env info
+# 1. 確認在 uv 虛擬環境中
+which python
 
 # 2. 檢查 CUDA 工具鏈
 nvcc --version
-python -c "import torch; print(f'CUDA Available: {torch.cuda.is_available()}')"
+uv run python -c "import torch; print(f'CUDA Available: {torch.cuda.is_available()}')"
 ```
 
 **解決方案**:
 
-**方法 1: 在 Poetry 環境中限制並行編譯（減少記憶體使用）**
+**方法 1: 限制並行編譯（減少記憶體使用）**
 
 ```bash
 # Linux / macOS / WSL
-poetry shell
-MAX_JOBS=2 pip install flash-attn --no-build-isolation --no-cache-dir
-exit
+MAX_JOBS=2 uv pip install flash-attn --no-build-isolation --no-cache-dir
 
 # Windows PowerShell
-poetry shell
-$env:MAX_JOBS=2; pip install flash-attn --no-build-isolation --no-cache-dir
-exit
+$env:MAX_JOBS=2; uv pip install flash-attn --no-build-isolation --no-cache-dir
 
 # Windows CMD
-poetry shell
-set MAX_JOBS=2 && pip install flash-attn --no-build-isolation --no-cache-dir
-exit
+set MAX_JOBS=2 && uv pip install flash-attn --no-build-isolation --no-cache-dir
 ```
 
 **方法 2: 使用預編譯 wheel（如果可用）**
 
 ```bash
-poetry shell
-pip install flash-attn --find-links https://github.com/Dao-AILab/flash-attention/releases
-exit
+uv pip install flash-attn --find-links https://github.com/Dao-AILab/flash-attention/releases
 ```
 
 **方法 3: 降低並行數（記憶體不足時）**
 
 ```bash
 # 如果 32GB RAM，嘗試 MAX_JOBS=2 或 1
-poetry shell
-MAX_JOBS=1 pip install flash-attn --no-build-isolation --no-cache-dir
-exit
+MAX_JOBS=1 uv pip install flash-attn --no-build-isolation --no-cache-dir
 ```
 
 **方法 4: 跳過 Flash-Attention（性能略降）**
@@ -930,7 +874,7 @@ exit
 - GPU Compute Capability ≥ 7.5（Turing 架構以上，RTX 3090 為 8.6 ✅）
 - 編譯期間記憶體 >16GB（建議 32GB+）
 - 磁碟空間 >10GB（用於編譯緩存）
-- **必須在 Poetry 虛擬環境中編譯**（不要使用系統 Python）
+- **必須在 uv 虛擬環境中編譯**（不要使用系統 Python）
 
 **常見錯誤與解決**:
 - `CUDA not found`: 確認 CUDA Toolkit 已安裝且路徑正確
@@ -1033,7 +977,7 @@ sys.exit(0)
 ./scripts/avatar-scripts dev-validate
 
 # 方法 B: 直接執行腳本
-python scripts/setup/validate_setup.py
+uv run python scripts/setup/validate_setup.py
 ```
 
 ---
@@ -1047,14 +991,13 @@ python scripts/setup/validate_setup.py
 # 系統資訊
 uname -a
 python --version
-poetry --version
+uv --version
 
 # GPU 資訊
 nvidia-smi
 
 # 依賴清單
-poetry show
-pip list
+uv pip list
 
 # 錯誤日誌
 tail -n 100 logs/error.log
@@ -1063,7 +1006,7 @@ tail -n 100 logs/error.log
 2. **查閱文檔**:
 - vLLM: https://docs.vllm.ai/
 - FastAPI: https://fastapi.tiangolo.com/
-- Poetry: https://python-poetry.org/docs/
+- uv: https://astral.sh/docs/uv
 
 3. **GitHub Issues**:
 - 搜尋是否有類似問題
@@ -1073,4 +1016,4 @@ tail -n 100 logs/error.log
 
 **審核記錄**:
 - 2025-11-01: v1.0.0 - 初版完成（Linus 式精簡）
-- 2025-11-01: v1.1.0 - 新增 Poetry 詳細配置與故障排除指南（參考 iSpan_LLM-One-Piece）
+- 2025-11-06: v2.0.0 - 遷移至 uv，更新所有安裝與部署指令
