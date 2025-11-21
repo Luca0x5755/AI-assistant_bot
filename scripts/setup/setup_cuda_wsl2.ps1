@@ -24,7 +24,7 @@ if ($LASTEXITCODE -eq 0) {
     Write-Host "Next: Install Flash-Attention in WSL2" -ForegroundColor Cyan
     Write-Host "  1. Open new WSL2 terminal" -ForegroundColor White
     Write-Host "  2. Run: cd /mnt/d/python_workspace/python-sideproject/AI-related/AI-assistant_bot" -ForegroundColor White
-    Write-Host "  3. Run: poetry shell" -ForegroundColor White
+    Write-Host "  3. Run: uv shell" -ForegroundColor White
     Write-Host "  4. Run: MAX_JOBS=4 pip install flash-attn --no-build-isolation --no-cache-dir" -ForegroundColor White
 } else {
     Write-Host ""

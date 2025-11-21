@@ -71,7 +71,7 @@ def generate_sine_wave_audio(output_path: Path, duration_sec: float = 3.0, frequ
         
     except ImportError as e:
         print(f"❌ 缺少依赖: {e}")
-        print("   请安装: poetry run pip install torch torchaudio")
+        print("   请安装: uv pip install torch torchaudio")
         return False
     except Exception as e:
         print(f"❌ 生成失败: {e}")
@@ -155,7 +155,7 @@ def generate_speech_audio(output_path: Path, text: str = "你好，这是一个�
         
     except ImportError:
         print("⚠️  gTTS 未安装，将使用正弦波备用方案")
-        print("   安装: poetry add gtts")
+        print("   安装: uv add gtts")
         return False
     except Exception as e:
         print(f"❌ gTTS 生成失败: {e}")

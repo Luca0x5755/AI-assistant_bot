@@ -467,7 +467,7 @@ avatar/ (Phase 3 Backend Complete)
 ├── 📁 CosyVoice/               # CosyVoice2 模型 (4.8GB)
 │   └── pretrained_models/
 ├── app.db                      # SQLite 數據庫 (WAL 模式)
-├── pyproject.toml              # uv/Poetry 配置
+├── pyproject.toml              # uv 配置
 └── CLAUDE.md                   # TaskMaster 配置
 ```
 

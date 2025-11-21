@@ -4,7 +4,7 @@ AVATAR - Environment Validation Script
 驗證開發環境是否正確設置
 
 Usage:
-    poetry run python scripts/validate_setup.py
+    uv run python scripts/validate_setup.py
     # 或激活環境後: python scripts/validate_setup.py
 """
 

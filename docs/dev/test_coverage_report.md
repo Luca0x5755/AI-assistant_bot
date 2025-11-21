@@ -501,7 +501,7 @@
 
 # 單元測試
 export PYTHONPATH=src:$PYTHONPATH
-poetry run python -m pytest tests/unit/ -v
+uv run python -m pytest tests/unit/ -v
 
 # 整合測試
 uv run python tests/e2e_pipeline_test.py

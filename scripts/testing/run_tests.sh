@@ -22,7 +22,7 @@ echo ""
 # Run quick service tests
 echo "📋 Step 1: Quick Service Tests"
 echo "------------------------------------------------------------"
-poetry run python tests/quick_service_test.py
+uv run python tests/quick_service_test.py
 quick_result=$?
 
 if [ $quick_result -ne 0 ]; then
@@ -34,7 +34,7 @@ fi
 echo ""
 echo "📋 Step 2: Full E2E Pipeline Tests"
 echo "------------------------------------------------------------"
-poetry run python tests/e2e/e2e_pipeline_test.py
+uv run python tests/e2e/e2e_pipeline_test.py
 e2e_result=$?
 
 echo ""

@@ -20,11 +20,11 @@
         },
         {
           "id": "task-2",
-          "title": "配置 Poetry 虛擬環境與依賴安裝",
+          "title": "配置 uv 虛擬環境與依賴安裝",
           "status": "completed",
           "assignee": "Human + Claude",
           "estimatedHours": 1,
-          "details": "poetry install + PyTorch 2.3.1+cu121 + vLLM 0.5.3",
+          "details": "uv install + PyTorch 2.3.1+cu121 + vLLM 0.5.3",
           "completedAt": "2025-11-02T05:05:00Z"
         },
         {

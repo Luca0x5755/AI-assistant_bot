@@ -5,7 +5,7 @@ AVATAR Development Server Launcher
 Starts server with auto-reload enabled for development.
 
 Usage:
-    poetry run python run_dev.py
+    uv run python run_dev.py
 """
 
 import sys

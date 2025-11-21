@@ -4,7 +4,7 @@ AVATAR - Database Initialization Script
 初始化 SQLite 資料庫 schema
 
 Usage:
-    poetry run python scripts/init_database.py
+    uv run python scripts/init_database.py
     # 或激活環境後: python scripts/init_database.py
 """
 

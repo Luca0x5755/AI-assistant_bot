@@ -134,4 +134,4 @@
 **"Real programmers ship working code, not perfect tests."** - 現在繼續 Phase 3！
 
 <system-reminder>
-Background Bash 9b087e (command: export PYTHONPATH=/home/os-sunnie.gd.weng/python_workstation/side-project/AI-assistant_bot/src:$PYTHONPATH && export LD_LIBRARY_PATH=/home/os-sunnie.gd.weng/python_workstation/side-project/AI-assistant_bot/.cuda_compat:$LD_LIBRARY_PATH && poetry run uvicorn avatar.main:app --host 0.0.0.0 --port 8000 --reload &) (status: running) Has new output available. You can check its output using the BashOutput tool.
+Background Bash 9b087e (command: export PYTHONPATH=/home/os-sunnie.gd.weng/python_workstation/side-project/AI-assistant_bot/src:$PYTHONPATH && export LD_LIBRARY_PATH=/home/os-sunnie.gd.weng/python_workstation/side-project/AI-assistant_bot/.cuda_compat:$LD_LIBRARY_PATH && uv run uvicorn avatar.main:app --host 0.0.0.0 --port 8000 --reload &) (status: running) Has new output available. You can check its output using the BashOutput tool.

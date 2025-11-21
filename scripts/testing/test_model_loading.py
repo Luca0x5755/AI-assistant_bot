@@ -6,7 +6,7 @@ Tests each service individually and monitors VRAM usage to validate
 the resource allocation strategy.
 
 Usage:
-    poetry run python scripts/test_model_loading.py
+    uv run python scripts/test_model_loading.py
 """
 
 import asyncio

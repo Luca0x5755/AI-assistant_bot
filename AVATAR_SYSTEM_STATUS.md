@@ -152,7 +152,7 @@ tail -f backend.log frontend.log
 ### 🚨 **故障排除**
 ```bash
 # 手動啟動後端
-poetry run python src/avatar/main.py
+uv run python src/avatar/main.py
 
 # 手動啟動前端
 cd frontend && npm run dev

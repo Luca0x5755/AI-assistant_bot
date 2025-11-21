@@ -137,7 +137,7 @@ class Config:
             if not cls.DATABASE_PATH.exists():
                 raise FileNotFoundError(
                     f"Database not found: {cls.DATABASE_PATH}\n"
-                    f"Run: poetry run python scripts/init_database.py"
+                    f"Run: uv run python scripts/setup/init_database.py"
                 )
 
             return True

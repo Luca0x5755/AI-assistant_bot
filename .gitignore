@@ -215,7 +215,7 @@ backups/audio/*
 
 # Poetry 虛擬環境
 .venv/
-poetry.lock
+
 
 # Jupyter Notebooks
 .ipynb_checkpoints/

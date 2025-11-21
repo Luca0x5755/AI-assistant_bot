@@ -44,9 +44,7 @@ echo "【4】清理用戶暫存目錄..."
 USER_TMP_SIZE_BEFORE=$(du -sh ~/.cache 2>/dev/null | cut -f1 || echo "0")
 # 清理 pip 快取
 pip cache purge 2>/dev/null || true
-# 清理 poetry 快取
-poetry cache clear pypi --all 2>/dev/null || true
-echo "   ✓ 已清理 pip 和 poetry 快取"
+echo "   ✓ 已清理 pip 快取"
 echo ""
 
 # 5. 清理系統日誌（可選，需要 sudo）

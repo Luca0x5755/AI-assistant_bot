@@ -151,14 +151,12 @@ CUDA Toolkit 安裝完成後，執行以下步驟：
 cd /mnt/d/python_workspace/python-sideproject/AI-related/AI-assistant_bot
 ```
 
-### 3. 激活 Poetry 虛擬環境
+### 3. 激活 uv 虛擬環境
 
 ```bash
-# 方法 A：使用 poetry shell（推薦）
-poetry shell
+source .venv/bin/activate
 
-# 方法 B：手動激活
-source $(poetry env info --path)/bin/activate
+
 ```
 
 ### 4. 驗證環境
@@ -235,22 +233,26 @@ sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-11 60
 
 ---
 
-### Q4: Poetry 環境在 Windows 而非 WSL2
+### Q4: Python 虛擬環境在 Windows 而非 WSL2
 
-**症狀**：`poetry env info` 顯示 Windows 路徑
+**症狀**：`uv venv show` 或 `which python` 顯示 Windows 路徑
 
-**解決**：在 WSL2 中重新初始化 Poetry 環境
+**解決**：在 WSL2 中重新初始化 uv 虛擬環境
 ```bash
 cd /mnt/d/python_workspace/python-sideproject/AI-related/AI-assistant_bot
 
-# 配置 Poetry 使用項目內虛擬環境
-poetry config virtualenvs.in-project true
+# 確保移除舊的虛擬環境 (如果存在)
+rm -rf .venv
 
-# 重新安裝依賴（會在 WSL2 中創建 .venv）
-poetry install --no-root
+# 創建並激活新的虛擬環境
+uv venv
+source .venv/bin/activate
+
+# 安裝所有依賴
+uv pip install -e .[dev]
 
 # 檢查新環境
-poetry env info
+uv venv show
 ```
 
 ---
@@ -261,7 +263,7 @@ poetry env info
 
 ```bash
 cd /mnt/d/python_workspace/python-sideproject/AI-related/AI-assistant_bot
-poetry run python scripts/validate_setup.py
+uv run python scripts/validate_setup.py
 ```
 
 **預期輸出**：
@@ -286,7 +288,7 @@ poetry run python scripts/validate_setup.py
 
 - [NVIDIA CUDA WSL2 官方文檔](https://docs.nvidia.com/cuda/wsl-user-guide/)
 - [Flash-Attention GitHub](https://github.com/Dao-AILab/flash-attention)
-- [Poetry 官方文檔](https://python-poetry.org/)
+
 
 ---
 

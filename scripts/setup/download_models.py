@@ -4,7 +4,7 @@ AVATAR - AI Model Download Script
 下載專案所需的 AI 模型
 
 Usage:
-    poetry run python scripts/download_models.py
+    uv run python scripts/download_models.py
     # 或激活環境後: python scripts/download_models.py
 """
 

@@ -247,7 +247,7 @@
 ### 部署文檔
 
 - [x] **基礎部署文檔** ✅ Phase 1-2 完成
-  - [x] 環境準備步驟 (Poetry, CUDA, PyTorch)
+  - [x] 環境準備步驟 (uv, CUDA, PyTorch)
   - [x] 依賴安裝指令 (pyproject.toml)
   - [x] 資料庫初始化腳本 (scripts/init_database.py)
   - [ ] 模型下載步驟文檔化 (Phase 4)

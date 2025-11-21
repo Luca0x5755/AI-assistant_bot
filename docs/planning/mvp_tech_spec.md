@@ -484,7 +484,7 @@ npm run dev
 
 **決策**: uv
 **理由**:
-- **極速**: `uv` 在依賴解析和安裝上比 `pip` 和 `poetry` 快得多。
+- **極速**: `uv` 在依賴解析和安裝上比 `pip` 快得多。
 - **依賴鎖定**: `uv.lock` 確保環境可複製（`pip` 的 `requirements.txt` 版本易飄移）。
 - **虛擬環境管理**: `uv` 內建虛擬環境管理，無需手動 `venv`。
 - **現代化工具**: `uv` 是一個整合的 Python 套件管理工具，遵循現代 Python 標準。
@@ -608,7 +608,7 @@ avatar/
 │   └── package.json
 ├── data/                    # 數據存儲
 ├── .venv/                   # uv 虛擬環境 (本地)
-├── pyproject.toml           # uv/Poetry 專案配置
+├── pyproject.toml           # uv 專案配置
 ├── uv.lock              # 依賴版本鎖定
 ├── app.db                   # SQLite 資料庫檔案
 ├── .gitignore               # Git 忽略規則
@@ -696,8 +696,8 @@ dev = [
 # =============================================================================
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
 ```
 
 **注意事項**:

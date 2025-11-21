@@ -139,7 +139,7 @@ class TTSService:
             except ImportError as e:
                 logger.error("tts.import_failed", error=str(e))
                 raise RuntimeError(
-                    f"F5-TTS not installed. Run: poetry add f5-tts\n{e}"
+                    f"F5-TTS not installed. Run: uv pip install f5-tts\n{e}"
                 ) from e
             except Exception as e:
                 logger.error("tts.load_failed", error=str(e))

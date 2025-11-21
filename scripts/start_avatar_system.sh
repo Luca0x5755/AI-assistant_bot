@@ -51,11 +51,11 @@ wait_for_service() {
 echo ""
 echo "🔍 Checking system prerequisites..."
 
-# Check Python/Poetry
-if command -v poetry >/dev/null 2>&1; then
-    echo "✅ Poetry found"
+# Check Python/uv
+if command -v uv >/dev/null 2>&1; then
+    echo "✅ uv found"
 else
-    echo "❌ Poetry not found - please install Poetry"
+    echo "❌ uv not found - please install uv"
     exit 1
 fi
 
@@ -72,7 +72,7 @@ if [ ! -d "$PROJECT_ROOT/.venv" ]; then
     echo "⚠️ Python virtual environment not found"
     echo "🔧 Installing dependencies..."
     cd "$PROJECT_ROOT"
-    poetry install
+    uv pip install -e .[dev]
 fi
 
 # Check if frontend dependencies are installed
@@ -96,7 +96,7 @@ else
     cd "$PROJECT_ROOT"
 
     # Start backend in background
-    nohup poetry run python src/avatar/main.py > backend.log 2>&1 &
+    nohup uv run python src/avatar/main.py > backend.log 2>&1 &
     BACKEND_PID=$!
     echo "Backend PID: $BACKEND_PID"
 

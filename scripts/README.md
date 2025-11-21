@@ -56,7 +56,7 @@ scripts/
 
 | 腳本 | 功能 | 清理目標 |
 |------|------|----------|
-| `cleanup_cache.sh` | 針對性清理 pip/poetry/HF 快取 | ~100GB |
+| `cleanup_cache.sh` | 針對性清理 pip/uv/HF 快取 | ~100GB |
 | `quick_cleanup.sh` | 快速清理臨時檔案 | ~5GB |
 | `linux_resource_cleanup.sh` | 深度清理系統資源 | 全面 |
 

@@ -1,8 +1,6 @@
 {
   "permissions": {
     "allow": [
-      "Bash(PYTHONPATH=/mnt/d/python_workspace/python-sideproject/AI-related/AI-assistant_bot:$PYTHONPATH poetry run python:*)",
-      "Bash(PYTHONPATH=/mnt/d/python_workspace/python-sideproject/AI-related/AI-assistant_bot/src:$PYTHONPATH poetry run python:*)",
       "Bash(sudo ln:*)",
       "Bash(ln:*)",
       "Bash(export:*)",

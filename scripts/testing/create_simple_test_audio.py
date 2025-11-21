@@ -49,4 +49,4 @@ if __name__ == "__main__":
     create_test_tone(output_path, duration_sec=2.0)
 
     print("\n✅ Ready for E2E testing!")
-    print(f"   Run: poetry run python tests/e2e_pipeline_test.py\n")
+    print(f"   Run: uv run python tests/e2e_pipeline_test.py\n")

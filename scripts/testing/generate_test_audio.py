@@ -68,7 +68,7 @@ def generate_test_audio_gtts(output_path: Path, text: str = "Hello, this is a te
         return True
 
     except ImportError:
-        print("⚠️  gTTS not installed. Install with: poetry add gtts")
+        print("⚠️  gTTS not installed. Install with: uv add gtts")
         return False
     except Exception as e:
         print(f"❌ gTTS generation failed: {e}")

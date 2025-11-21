@@ -53,7 +53,7 @@ show_help() {
 
     echo -e "${YELLOW}Usage:${NC}"
     echo "  ./scripts/avatar-scripts [command]"
-    echo "  poetry run python -m scripts.avatar-scripts [command]"
+    echo "  uv run python -m scripts.avatar-scripts [command]"
     echo ""
 }
 
@@ -67,7 +67,7 @@ run_script() {
 
     if [[ -f "$SCRIPT_DIR/$category/$script" ]]; then
         if [[ "$script" == *.py ]]; then
-            poetry run python "$SCRIPT_DIR/$category/$script"
+            uv run python "$SCRIPT_DIR/$category/$script"
         else
             bash "$SCRIPT_DIR/$category/$script"
         fi
@@ -111,7 +111,7 @@ case "${1:-help}" in
     "test-hq-tts")
         echo -e "${GREEN}[RUN]${NC} 測試 HQ TTS 質量對比"
         echo ""
-        PYTHONPATH="$SCRIPT_DIR/../src:$PYTHONPATH" poetry run python "$SCRIPT_DIR/../tests/e2e_hq_tts_test.py"
+        PYTHONPATH="$SCRIPT_DIR/../src:$PYTHONPATH" uv run python "$SCRIPT_DIR/../tests/e2e_hq_tts_test.py"
         ;;
     "test-all")
         run_script "testing" "run_tests.sh" "執行完整測試套件"

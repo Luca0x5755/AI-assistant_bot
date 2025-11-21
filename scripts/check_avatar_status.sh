@@ -134,7 +134,7 @@ if [ "$BACKEND_OK" = "true" ] && [ "$FRONTEND_OK" = "true" ]; then
 elif [ "$FRONTEND_OK" = "true" ]; then
     echo "   ⚠️ AVATAR System: FRONTEND ONLY"
     echo "   🌐 Access: http://localhost:8080/ (limited functionality)"
-    echo "   🔧 Start backend: poetry run python src/avatar/main.py"
+    echo "   🔧 Start backend: uv run python src/avatar/main.py"
 elif [ "$BACKEND_OK" = "true" ]; then
     echo "   ⚠️ AVATAR System: BACKEND ONLY"
     echo "   📊 API: http://localhost:8000/docs"

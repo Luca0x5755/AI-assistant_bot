@@ -187,7 +187,7 @@ async def test_websocket_happy_path():
     if not await client.connect():
         print(f"❌ Failed to connect to {ws_url}")
         print("   Make sure FastAPI server is running:")
-        print(f"   PYTHONPATH=src poetry run python -m avatar.main")
+        print(f"   PYTHONPATH=src uv run python -m avatar.main")
         return False
 
     print(f"✅ Connected to {ws_url}")
@@ -451,7 +451,7 @@ async def main():
 
     # Note: These tests require FastAPI server to be running
     print("⚠️  NOTE: These tests require the FastAPI server to be running:")
-    print("   PYTHONPATH=src poetry run python -m avatar.main")
+    print("   PYTHONPATH=src uv run python -m avatar.main")
     print()
 
     input("Press Enter to start tests (or Ctrl+C to cancel)...")

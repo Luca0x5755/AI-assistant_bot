@@ -30,18 +30,7 @@ else
 fi
 echo ""
 
-# 選項 2: 清理 Poetry 快取（16GB）
-echo "【2】清理 Poetry 快取..."
-if [ -d ~/.cache/pypoetry ]; then
-    POETRY_SIZE_BEFORE=$(du -sh ~/.cache/pypoetry | cut -f1)
-    poetry cache clear pypi --all 2>/dev/null || true
-    # 也可以清理整個目錄（更徹底）
-    # rm -rf ~/.cache/pypoetry/cache/repositories/pypi 2>/dev/null || true
-    echo "   ✓ 已清理 Poetry 快取（之前：$POETRY_SIZE_BEFORE）"
-else
-    echo "   ⚠ Poetry 快取目錄不存在"
-fi
-echo ""
+
 
 # 選項 3: 清理 HuggingFace 快取（61GB）- 需要互動確認
 echo "【3】HuggingFace 模型快取（61GB）..."

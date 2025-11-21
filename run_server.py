@@ -5,7 +5,7 @@ AVATAR Server Launcher
 Convenience script to start the AVATAR API server.
 
 Usage:
-    poetry run python run_server.py
+    uv run python run_server.py
     # or after activating environment:
     python run_server.py
 """
