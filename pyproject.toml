@@ -6,6 +6,9 @@
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
+[tool.poetry]
+packages = [{include = "avatar", from = "src"}]
+
 [project]
 name = "avatar-mvp"
 version = "0.1.0"
