@@ -47,6 +47,8 @@ eggs/
 .eggs/
 lib/
 lib64/
+# 但不忽略前端源代碼 lib 目錄
+!frontend/src/lib/
 parts/
 sdist/
 var/
