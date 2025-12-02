@@ -14,6 +14,7 @@ import {
   TTSReadyMessage,
   WebSocketEventHandlers
 } from '@/lib/websocket-client';
+import { API_CONFIG } from '@/lib/api-config';
 
 export interface AudioRecordingState {
   isRecording: boolean;

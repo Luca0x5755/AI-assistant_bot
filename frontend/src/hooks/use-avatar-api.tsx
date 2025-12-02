@@ -48,7 +48,7 @@ export const useDeleteVoiceProfile = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (profileId: number) => avatarAPI.deleteVoiceProfile(profileId),
+    mutationFn: (profileId: string) => avatarAPI.deleteVoiceProfile(profileId),
     onSuccess: () => {
       // Invalidate voice profiles query to refresh the list
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.VOICE_PROFILES });
@@ -61,7 +61,7 @@ export const useDeleteVoiceProfile = () => {
 
 export const useTestVoiceProfileSynthesis = () => {
   return useMutation({
-    mutationFn: ({ profileId, text }: { profileId: number; text: string }) =>
+    mutationFn: ({ profileId, text }: { profileId: string; text: string }) =>
       avatarAPI.testVoiceProfileSynthesis(profileId, text),
     onError: (error) => {
       console.error('Voice synthesis test failed:', error);
@@ -70,10 +70,10 @@ export const useTestVoiceProfileSynthesis = () => {
 };
 
 // Conversation History hooks
-export const useConversations = (limit: number = 50, offset: number = 0) => {
+export const useConversations = (page: number = 1, perPage: number = 20) => {
   return useQuery({
-    queryKey: [...QUERY_KEYS.CONVERSATIONS, limit, offset],
-    queryFn: () => avatarAPI.getConversations(limit, offset),
+    queryKey: [...QUERY_KEYS.CONVERSATIONS, page, perPage],
+    queryFn: () => avatarAPI.getConversations(page, perPage),
     refetchInterval: 60000, // Refresh every minute
     staleTime: 30000 // Consider stale after 30 seconds
   });
@@ -81,22 +81,36 @@ export const useConversations = (limit: number = 50, offset: number = 0) => {
 
 export const useSearchConversations = () => {
   return useMutation({
-    mutationFn: (query: string) => avatarAPI.searchConversations(query),
+    mutationFn: ({
+      query,
+      page = 1,
+      perPage = 20
+    }: {
+      query: string;
+      page?: number;
+      perPage?: number;
+    }) => avatarAPI.searchConversations(query, page, perPage),
     onError: (error) => {
       console.error('Conversation search failed:', error);
     }
   });
 };
 
-export const useExportConversations = () => {
+export const useExportConversationSession = () => {
   return useMutation({
-    mutationFn: (format: 'json' | 'txt' = 'json') => avatarAPI.exportConversations(format),
+    mutationFn: ({
+      sessionId,
+      format = 'json'
+    }: {
+      sessionId: string;
+      format?: 'json' | 'txt';
+    }) => avatarAPI.exportConversationSession(sessionId, format),
     onSuccess: (blob, variables) => {
       // Auto-download the exported file
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `avatar-conversations.${variables}`;
+      link.download = `conversation-${variables.sessionId}.${variables.format}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -127,15 +141,6 @@ export const useVRAMStatus = () => {
   });
 };
 
-export const useSessionStatus = () => {
-  return useQuery({
-    queryKey: QUERY_KEYS.SESSION_STATUS,
-    queryFn: () => avatarAPI.getSessionStatus(),
-    refetchInterval: 20000, // Refresh every 20 seconds
-    staleTime: 10000
-  });
-};
-
 // Utility hooks for system information
 export const useSystemInfo = () => {
   return useQuery({
@@ -146,25 +151,273 @@ export const useSystemInfo = () => {
   });
 };
 
-// Combined hook for dashboard data
+// ==================== Voice Profiles (Extended) ====================
+
+export const useVoiceProfile = (profileId: string) => {
+  return useQuery({
+    queryKey: [...QUERY_KEYS.VOICE_PROFILES, profileId],
+    queryFn: () => avatarAPI.getVoiceProfile(profileId),
+    staleTime: 30000
+  });
+};
+
+export const useUpdateVoiceProfile = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      profileId,
+      data,
+      audioFile
+    }: {
+      profileId: string;
+      data: { name?: string; description?: string; reference_text?: string };
+      audioFile?: File;
+    }) => avatarAPI.updateVoiceProfile(profileId, data, audioFile),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.VOICE_PROFILES });
+    },
+    onError: (error) => {
+      console.error('Voice profile update failed:', error);
+    }
+  });
+};
+
+export const useVoiceProfileAudio = (profileId: string) => {
+  return useQuery({
+    queryKey: [...QUERY_KEYS.VOICE_PROFILES, profileId, 'audio'],
+    queryFn: () => avatarAPI.getVoiceProfileAudio(profileId),
+    staleTime: Infinity,  // Audio files don't change
+    enabled: false        // Only fetch when explicitly called
+  });
+};
+
+// ==================== Conversations (Extended) ====================
+
+export const useConversationHistory = (sessionId: string, limit: number = 50) => {
+  return useQuery({
+    queryKey: [...QUERY_KEYS.CONVERSATIONS, sessionId, limit],
+    queryFn: () => avatarAPI.getConversationHistory(sessionId, limit),
+    staleTime: 30000
+  });
+};
+
+export const useDeleteConversation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (sessionId: string) =>
+      avatarAPI.deleteConversationSession(sessionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.CONVERSATIONS });
+    },
+    onError: (error) => {
+      console.error('Conversation deletion failed:', error);
+    }
+  });
+};
+
+export const useConversationAudio = () => {
+  return useMutation({
+    mutationFn: ({
+      sessionId,
+      turnNumber,
+      audioType = 'ai_fast'
+    }: {
+      sessionId: string;
+      turnNumber: number;
+      audioType?: 'user' | 'ai_fast' | 'ai_hq';
+    }) => avatarAPI.getConversationAudio(sessionId, turnNumber, audioType),
+    onSuccess: (blob, variables) => {
+      // Auto-download the audio file
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${variables.sessionId}-turn${variables.turnNumber}-${variables.audioType}.wav`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    },
+    onError: (error) => {
+      console.error('Audio download failed:', error);
+    }
+  });
+};
+
+export const useConversationStats = () => {
+  return useQuery({
+    queryKey: ['conversation-stats'],
+    queryFn: () => avatarAPI.getConversationStats(),
+    refetchInterval: 60000,
+    staleTime: 30000
+  });
+};
+
+// ==================== VRAM Management ====================
+
+export const useVRAMHistory = (deviceId: number = 0, minutes: number = 10) => {
+  return useQuery({
+    queryKey: [...QUERY_KEYS.VRAM_STATUS, 'history', deviceId, minutes],
+    queryFn: () => avatarAPI.getVRAMHistory(deviceId, minutes),
+    refetchInterval: 30000,
+    staleTime: 10000
+  });
+};
+
+export const useTriggerVRAMCleanup = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (deviceId?: number) => avatarAPI.triggerVRAMCleanup(deviceId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.VRAM_STATUS });
+    },
+    onError: (error) => {
+      console.error('VRAM cleanup failed:', error);
+    }
+  });
+};
+
+export const usePredictServiceCapacity = () => {
+  return useMutation({
+    mutationFn: (serviceType: 'stt' | 'llm' | 'tts_fast' | 'tts_hq') =>
+      avatarAPI.predictServiceCapacity(serviceType),
+    onError: (error) => {
+      console.error('Service capacity prediction failed:', error);
+    }
+  });
+};
+
+// ==================== Monitoring API ====================
+
+export const MONITORING_KEYS = {
+  HEALTH: ['monitoring-health'] as const,
+  ALERTS: ['monitoring-alerts'] as const,
+  ERRORS: ['monitoring-errors'] as const,
+  METRICS: ['monitoring-metrics'] as const,
+  PERFORMANCE: ['monitoring-performance'] as const,
+  DASHBOARD: ['monitoring-dashboard'] as const,
+};
+
+export const useMonitoringHealth = () => {
+  return useQuery({
+    queryKey: MONITORING_KEYS.HEALTH,
+    queryFn: () => avatarAPI.getMonitoringHealth(),
+    refetchInterval: 15000,
+    staleTime: 5000
+  });
+};
+
+export const useMonitoringAlerts = (
+  includeResolved: boolean = false,
+  level?: string
+) => {
+  return useQuery({
+    queryKey: [...MONITORING_KEYS.ALERTS, includeResolved, level],
+    queryFn: () => avatarAPI.getMonitoringAlerts(includeResolved, level),
+    refetchInterval: 20000,
+    staleTime: 10000
+  });
+};
+
+export const useAcknowledgeAlert = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (alertId: string) => avatarAPI.acknowledgeAlert(alertId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: MONITORING_KEYS.ALERTS });
+    }
+  });
+};
+
+export const useResolveAlert = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (alertId: string) => avatarAPI.resolveAlert(alertId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: MONITORING_KEYS.ALERTS });
+    }
+  });
+};
+
+export const useErrorStatistics = () => {
+  return useQuery({
+    queryKey: MONITORING_KEYS.ERRORS,
+    queryFn: () => avatarAPI.getErrorStatistics(),
+    refetchInterval: 30000,
+    staleTime: 15000
+  });
+};
+
+export const useRecentErrors = (limit: number = 50, severity?: string) => {
+  return useQuery({
+    queryKey: [...MONITORING_KEYS.ERRORS, 'recent', limit, severity],
+    queryFn: () => avatarAPI.getRecentErrors(limit, severity),
+    refetchInterval: 30000,
+    staleTime: 15000
+  });
+};
+
+export const useMetricsSummary = () => {
+  return useQuery({
+    queryKey: MONITORING_KEYS.METRICS,
+    queryFn: () => avatarAPI.getMetricsSummary(),
+    refetchInterval: 20000,
+    staleTime: 10000
+  });
+};
+
+export const usePerformanceMetrics = () => {
+  return useQuery({
+    queryKey: MONITORING_KEYS.PERFORMANCE,
+    queryFn: () => avatarAPI.getPerformanceMetrics(),
+    refetchInterval: 30000,
+    staleTime: 15000
+  });
+};
+
 export const useDashboardData = () => {
+  return useQuery({
+    queryKey: MONITORING_KEYS.DASHBOARD,
+    queryFn: () => avatarAPI.getDashboardData(),
+    refetchInterval: 15000,
+    staleTime: 5000
+  });
+};
+
+export const useResetMonitoringStats = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => avatarAPI.resetMonitoringStats(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['monitoring'] });
+    }
+  });
+};
+
+// Combined hook for system dashboard data
+export const useSystemDashboardData = () => {
   const health = useSystemHealth();
   const vram = useVRAMStatus();
-  const sessions = useSessionStatus();
   const profiles = useVoiceProfiles();
+  const conversationStats = useConversationStats();
 
   return {
     health: health.data,
     vram: vram.data,
-    sessions: sessions.data,
     voiceProfiles: profiles.data,
-    isLoading: health.isLoading || vram.isLoading || sessions.isLoading || profiles.isLoading,
-    error: health.error || vram.error || sessions.error || profiles.error,
+    conversationStats: conversationStats.data,
+    isLoading: health.isLoading || vram.isLoading || profiles.isLoading || conversationStats.isLoading,
+    error: health.error || vram.error || profiles.error || conversationStats.error,
     refetch: () => {
       health.refetch();
       vram.refetch();
-      sessions.refetch();
       profiles.refetch();
+      conversationStats.refetch();
     }
   };
 };
